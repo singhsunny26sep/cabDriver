@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "941050392088",
+    "project_id": "riodrivedriver",
+    "storage_bucket": "riodrivedriver.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:941050392088:android:dfe3e9acd4f8ac9ae39d6d",
+        "android_client_info": {
+          "package_name": "com.adiyacabdriver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8o4cdsvzLE4F-Ka799iKgv5uUO039Qbk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
