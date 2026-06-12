@@ -6,46 +6,59 @@ import {
   FlatList,
   TouchableOpacity,
   Platform,
+  TextInput,
+  Dimensions,
 } from 'react-native';
 import { Container } from '../components/Container/Container';
 import { COLORS } from '../theme/Colors';
 import Icon from 'react-native-vector-icons/AntDesign';
-import DateTimePicker from '@react-native-community/datetimepicker'; 
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { earningData } from '../utils/StaticDataBase';
 import { moderateScale, scale, verticalScale } from '../utils/Scalling';
 import { Fonts } from '../theme/Fonts';
 import useRazorpayPayment from '../utils/useRazorpayPayment';
 import CustomInputField from '../components/CustomTextInput/CustomInputField';
+import { ScrollView } from 'react-native-gesture-handler';
+
+const { width } = Dimensions.get('window');
 
 export default function Earning({}) {
   const { initiatePayment, isProcessing } = useRazorpayPayment();
-  
+
   const [amount, setAmount] = useState('');
-
-  const [showDatePicker, setShowDatePicker] = useState(false); 
-  const [selectedDate, setSelectedDate] = useState(new Date()); 
-
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const onDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
+    const currentDate = selectedDate || selectedDate;
     setShowDatePicker(Platform.OS === 'ios' ? true : false);
     setSelectedDate(currentDate);
   };
 
   const renderRideItem = ({ item }) => (
-    <View style={styles.rideItem}>
+    <View style={styles.rideCard}>
       <View style={styles.profileSection}>
-        <View style={styles.profileImage} />
+        <View style={styles.avatarPlaceholder}>
+          <FontAwesome name="user-circle" size={scale(40)} color={COLORS.gray2} />
+        </View>
         <View style={styles.rideDetails}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.tripInfo}>
-            {item.miles} | {item.duration}
-          </Text>
+          <Text style={styles.riderName}>{item.name}</Text>
+          <View style={styles.tripMeta}>
+            <Ionicons name="location-outline" size={scale(12)} color={COLORS.gray} />
+            <Text style={styles.tripInfo}>
+              {item.miles} km • {item.duration}
+            </Text>
+          </View>
         </View>
       </View>
-      <Text style={styles.earning}>₹{item.earning}</Text>
+      <View style={styles.earningBadge}>
+        <Text style={styles.earningText}>₹{item.earning}</Text>
+      </View>
     </View>
   );
+
   const handleConfirmPayment = async () => {
     if (!amount) return;
 
@@ -54,35 +67,42 @@ export default function Earning({}) {
         amount,
         description: 'Adding money to wallet',
         prefill: {
-          email: 'user@example.com', // You can get this from user profile
-          contact: '9876543210',    // You can get this from user profile
-          name: 'User Name'         // You can get this from user profile
-        }
+          email: 'user@example.com', // Replace with actual user data
+          contact: '9876543210',
+          name: 'User Name',
+        },
       },
-      () => {console.log(" success payment -> ", result)}, // onSuccess callback
-      (error) => console.log('Payment failed:', error) // onFailure callback
+      () => console.log('Payment success:', result),
+      (error) => console.log('Payment failed:', error)
     );
 
-    // Alternative way to handle result
     if (result.success) {
-      console.log("result handling ->", result)
+      console.log('Payment result handled:', result);
+      // Optionally clear input or show success message
     }
   };
 
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
 
   return (
     <Container
       statusBarStyle={'dark-content'}
       statusBarBackgroundColor={COLORS.white}
       backgroundColor={COLORS.white}>
+      {/* Modern Header */}
       <View style={styles.header}>
-        <View style={styles.headerLeft} />
-        <Text style={styles.headerTitle}>Today Earned</Text>
+        <Text style={styles.headerTitle}>Earnings</Text>
         <TouchableOpacity
           style={styles.calendarButton}
-          onPress={() => setShowDatePicker(true)} // Show date picker when button is pressed
-        >
-          <Icon name="calendar" size={24} color="#2A2A2A" />
+          onPress={() => setShowDatePicker(true)}
+          activeOpacity={0.7}>
+          <Ionicons name="calendar-outline" size={scale(24)} color={COLORS.themePrimary} />
         </TouchableOpacity>
       </View>
 
@@ -97,43 +117,77 @@ export default function Earning({}) {
         />
       )}
 
-      <View style={styles.summaryContainer}>
-        <View style={styles.summaryItem}>
-          <Text style={styles.summaryLabel}>Total Hour</Text>
-          <Text style={styles.summaryValue}>{earningData.totalHour} Hrs</Text>
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.summaryItem}>
-          <Text style={styles.summaryLabel}>Total Driven</Text>
-          <Text style={styles.summaryValue}>{earningData.totalMiles} kms</Text>
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.summaryItem}>
-          <Text style={styles.summaryLabel}>Total Earning</Text>
-          <Text style={styles.summaryValue}>₹ {earningData.totalEarning}</Text>
-        </View>
-      </View>
-      <View style={{paddingHorizontal: scale(16)}}>
-        <CustomInputField 
-          label={"Add Amount"}
-          value={amount}
-          onChangeText={setAmount}
-          keyboardType="default"
-          secureTextEntry={false}
-          placeholder={"Please Enter Amount want to add"}
-        />
+      {/* Selected Date Indicator */}
+      <View style={styles.dateContainer}>
+        <Ionicons name="today-outline" size={scale(16)} color={COLORS.gray} />
+        <Text style={styles.selectedDateText}>{formatDate(selectedDate)}</Text>
       </View>
 
-      <TouchableOpacity 
-        style={styles.CompleteRideicon} 
-        onPress={()=>{handleConfirmPayment()}}>
-        <Text style={styles.switchText}>Add Money</Text>
-      </TouchableOpacity>
+      {/* Summary Cards Row */}
+      <View style={styles.summaryRow}>
+        <View style={styles.summaryCard}>
+          <View style={styles.summaryIconBg}>
+            <Ionicons name="timer-outline" size={scale(22)} color={COLORS.themePrimary} />
+          </View>
+          <Text style={styles.summaryValue}>{earningData.totalHour} Hrs</Text>
+          <Text style={styles.summaryLabel}>Total Hours</Text>
+        </View>
+        <View style={styles.summaryCard}>
+          <View style={styles.summaryIconBg}>
+            <Ionicons name="car-outline" size={scale(22)} color={COLORS.themePrimary} />
+          </View>
+          <Text style={styles.summaryValue}>{earningData.totalMiles} km</Text>
+          <Text style={styles.summaryLabel}>Total Driven</Text>
+        </View>
+        <View style={styles.summaryCard}>
+          <View style={styles.summaryIconBg}>
+            <Ionicons name="wallet-outline" size={scale(22)} color={COLORS.themePrimary} />
+          </View>
+          <Text style={styles.summaryValue}>₹{earningData.totalEarning}</Text>
+          <Text style={styles.summaryLabel}>Total Earnings</Text>
+        </View>
+      </View>
+
+      {/* Add Money Section */}
+      <View style={styles.addMoneyContainer}>
+        <Text style={styles.sectionTitle}>Add Money to Wallet</Text>
+        <View style={styles.inputWrapper}>
+          <Text style={styles.currencySymbol}>₹</Text>
+          <TextInput
+            style={styles.amountInput}
+            placeholder="Enter amount"
+            placeholderTextColor={COLORS.gray}
+            keyboardType="numeric"
+            value={amount}
+            onChangeText={setAmount}
+          />
+        </View>
+        <TouchableOpacity
+          style={[styles.addMoneyButton, isProcessing && styles.disabledButton]}
+          onPress={handleConfirmPayment}
+          disabled={isProcessing}
+          activeOpacity={0.8}>
+          <Text style={styles.addMoneyButtonText}>
+            {isProcessing ? 'Processing...' : 'Add Money'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Rides List Header */}
+      <View style={styles.listHeader}>
+        <Text style={styles.sectionTitle}>Recent Rides</Text>
+        <TouchableOpacity>
+          <Text style={styles.viewAllText}>View All</Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={earningData.rides}
         renderItem={renderRideItem}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </Container>
   );
@@ -144,108 +198,197 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: scale(16),
-    paddingVertical: verticalScale(5),
+    paddingHorizontal: scale(20),
+    paddingTop: Platform.OS === 'ios' ? verticalScale(12) : verticalScale(16),
+    paddingBottom: verticalScale(8),
     backgroundColor: COLORS.white,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  CompleteRideicon: {
-    // position: 'absolute',
-    // bottom: 10,
-    backgroundColor: COLORS.themePrimary,
-    padding: 10,
-    borderRadius: 10,
-    elevation: 5,
-    zIndex: 10,
-    width: '90%',
-    alignSelf: 'center',
-    justifyContent: "center",
-    alignItems: 'center'
-  },
-  switchText: {
-    fontFamily: Fonts.Medium,
-    color: COLORS.white,
-  },
-  headerLeft: {
-    width: scale(30),
   },
   headerTitle: {
-    fontSize: scale(17),
-    color: '#2A2A2A',
-    flex: 1,
-    textAlign: 'center',
-    fontFamily: Fonts.Regular,
+    fontSize: moderateScale(24),
+    fontFamily: Fonts.Bold,
+    color: COLORS.black,
+    letterSpacing: -0.3,
   },
   calendarButton: {
-    padding: scale(3),
-    width: scale(29),
+    padding: scale(8),
+    backgroundColor: COLORS.gray1 + '20',
+    borderRadius: moderateScale(30),
   },
-  summaryContainer: {
+  dateContainer: {
     flexDirection: 'row',
-    backgroundColor: COLORS.grayish,
-    margin: scale(16),
-    borderRadius: moderateScale(10),
-    padding: scale(16),
-  },
-  summaryItem: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center'
+    marginHorizontal: scale(20),
+    marginTop: verticalScale(4),
+    marginBottom: verticalScale(12),
   },
-  summaryLabel: {
-    color: COLORS.white,
-    fontSize: moderateScale(15),
-    marginBottom: scale(4),
+  selectedDateText: {
     fontFamily: Fonts.Medium,
+    fontSize: moderateScale(14),
+    color: COLORS.gray,
+    marginLeft: scale(6),
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: scale(16),
+    marginBottom: verticalScale(20),
+  },
+  summaryCard: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    borderRadius: moderateScale(16),
+    paddingVertical: verticalScale(14),
+    alignItems: 'center',
+    marginHorizontal: scale(6),
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: COLORS.gray2 + '40',
+  },
+  summaryIconBg: {
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
+    backgroundColor: COLORS.themePrimary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: verticalScale(8),
   },
   summaryValue: {
-    color: COLORS.white,
+    fontFamily: Fonts.Bold,
+    fontSize: moderateScale(18),
+    color: COLORS.black,
+    marginBottom: verticalScale(2),
+  },
+  summaryLabel: {
+    fontFamily: Fonts.Medium,
+    fontSize: moderateScale(12),
+    color: COLORS.gray,
+  },
+  addMoneyContainer: {
+    backgroundColor: COLORS.gray1 + '10',
+    marginHorizontal: scale(16),
+    marginBottom: verticalScale(20),
+    padding: scale(16),
+    borderRadius: moderateScale(20),
+    borderWidth: 1,
+    borderColor: COLORS.gray2 + '30',
+  },
+  sectionTitle: {
+    fontFamily: Fonts.SemiBold,
     fontSize: moderateScale(16),
-    fontFamily: Fonts.Regular,
+    color: COLORS.black,
+    marginBottom: verticalScale(12),
   },
-  divider: {
-    width: 1,
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: COLORS.white,
-    opacity: 0.3,
+    borderRadius: moderateScale(12),
+    borderWidth: 1,
+    borderColor: COLORS.gray2,
+    paddingHorizontal: scale(12),
+    marginBottom: verticalScale(16),
   },
-  rideItem: {
+  currencySymbol: {
+    fontFamily: Fonts.Bold,
+    fontSize: moderateScale(20),
+    color: COLORS.black,
+    marginRight: scale(8),
+  },
+  amountInput: {
+    flex: 1,
+    fontFamily: Fonts.Regular,
+    fontSize: moderateScale(16),
+    paddingVertical: verticalScale(12),
+    color: COLORS.black,
+  },
+  addMoneyButton: {
+    backgroundColor: COLORS.themePrimary,
+    borderRadius: moderateScale(30),
+    paddingVertical: verticalScale(12),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addMoneyButtonText: {
+    fontFamily: Fonts.Bold,
+    fontSize: moderateScale(16),
+    color: COLORS.white,
+  },
+  disabledButton: {
+    opacity: 0.6,
+  },
+  listHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: scale(15),
-    paddingVertical: verticalScale(12),
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    paddingHorizontal: scale(20),
+    marginBottom: verticalScale(8),
+  },
+  viewAllText: {
+    fontFamily: Fonts.Medium,
+    fontSize: moderateScale(12),
+    color: COLORS.themePrimary,
+  },
+  listContent: {
+    paddingHorizontal: scale(16),
+    paddingBottom: verticalScale(20),
+  },
+  rideCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: moderateScale(16),
+    padding: scale(12),
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 2,
   },
   profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
-  profileImage: {
-    width: scale(40),
-    height: scale(40),
-    borderRadius: moderateScale(30),
-    backgroundColor: '#F0F0F0',
+  avatarPlaceholder: {
+    marginRight: scale(12),
   },
   rideDetails: {
-    marginLeft: scale(12),
+    flex: 1,
   },
-  name: {
-    fontSize: moderateScale(16),
+  riderName: {
     fontFamily: Fonts.Medium,
+    fontSize: moderateScale(16),
     color: COLORS.black,
+    marginBottom: verticalScale(2),
+  },
+  tripMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   tripInfo: {
+    fontFamily: Fonts.Regular,
     fontSize: moderateScale(12),
     color: COLORS.gray,
-    marginTop: scale(2),
-    fontFamily: Fonts.Medium,
+    marginLeft: scale(4),
   },
-  earning: {
+  earningBadge: {
+    backgroundColor: COLORS.success + '10',
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(6),
+    borderRadius: moderateScale(20),
+  },
+  earningText: {
+    fontFamily: Fonts.Bold,
     fontSize: moderateScale(16),
-    fontFamily: Fonts.Medium,
-    color: COLORS.black,
+    color: COLORS.success,
+  },
+  separator: {
+    height: verticalScale(10),
   },
 });

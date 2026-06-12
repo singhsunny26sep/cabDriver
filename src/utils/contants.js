@@ -16,7 +16,7 @@ export const rideTypes = [
   {name: 'Car', value: 'car'},
   {name: 'Bike', value: 'bike'},
   {name: 'Taxi', value: 'taxi'},
-  {name: 'Parcel', value: 'cycle'},
+
 ];
 
 export const shadowStyle = {

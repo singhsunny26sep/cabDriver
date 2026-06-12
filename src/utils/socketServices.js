@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 import { BASE_URL } from "../../Api/Url";
 
-const SOCKET_URL = "http://192.168.31.250:5000";
+const SOCKET_URL = "https://dharma-cab.onrender.com";
 // const SOCKET_URL = "https://a36d-2401-4900-36ad-dc2b-9b6-567a-d954-f52f.ngrok-free.app";
 // const SOCKET_URL = "https://cabdriverserver-a3cdd048fc7c.herokuapp.com";
 

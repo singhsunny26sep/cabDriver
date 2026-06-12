@@ -49,7 +49,7 @@ export default function SplashScreen() {
         <View style={styles.iconContainer}>
           <FontAwesome5 name='car' size={50} color="#fff" />
         </View>
-        <Text style={styles.text}>RioDrive Driver</Text>
+        <Text style={styles.text}>DharamCab Driver</Text>
       </View>
     </Container>
   );

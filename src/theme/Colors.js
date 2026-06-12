@@ -1,6 +1,6 @@
 const COLORS = {
-  themePrimary : '#FEC400',
-  themeSecondary : '#EDAE10',
+  themePrimary : '#4c32e1',
+  themeSecondary : '#4c32e1',
   white: '#ffffff',
   whiteOpacity0: 'rgba(255,255,255, 0)',
   whiteOpacity10: 'rgba(255,255,255, 0.1)',
@@ -73,7 +73,7 @@ const COLORS = {
   emeraldGreen : '#43A048',
   firebrickRed : '#D32F2F',
   error: '#FF3B30',
-  Amber:"#FFE28A",
+  Amber:"#4c32e1",
   success: '#4CAF50',
   error: '#F44336',
   warning: '#FF9800',

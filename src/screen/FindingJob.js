@@ -12,6 +12,8 @@ import {
   ActivityIndicator,
   Alert,
   Linking,
+  SafeAreaView,
+  Dimensions,
 } from 'react-native';
 import MapView, {
   AnimatedRegion,
@@ -58,6 +60,8 @@ import DriverRatingModal from '../components/DriverRatingModal/DriverRatingModal
 // const LONGITUDE_DELTA = 0.0015;
 const LATITUDE_DELTA = 0.003;
 const LONGITUDE_DELTA = 0.003;
+
+const {width, height} = Dimensions.get('window');
 
 export default function FindingJob({navigation}) {
   // Hooks
@@ -432,8 +436,7 @@ export default function FindingJob({navigation}) {
         anchor={{x: 0.5, y: 0.5}}
         flat={false}
         zIndex={1000}
-        rotation={heading}
-        >
+        rotation={heading}>
         <View
           style={{
             transform: [{rotate: `${heading}deg`}],
@@ -441,8 +444,12 @@ export default function FindingJob({navigation}) {
             borderRadius: scale(100),
             padding: scale(30),
           }}>
-         <MaterialCommunityIcons name="navigation" size={scale(40)} color={COLORS.themePrimary} />
-         {/* <Feather name="navigation" size={scale(30)} color={COLORS.themePrimary} /> */}
+          <MaterialCommunityIcons
+            name="navigation"
+            size={scale(40)}
+            color={COLORS.themePrimary}
+          />
+          {/* <Feather name="navigation" size={scale(30)} color={COLORS.themePrimary} /> */}
           {/* <Image
             resizeMode="contain"
             // source={Icons.navigation}
@@ -650,26 +657,35 @@ export default function FindingJob({navigation}) {
       statusBarStyle={'dark-content'}
       statusBarBackgroundColor={COLORS.transparent}>
       <View style={styles.container}>
-        <View>
-          <View style={styles.searchBarContainer}>
-            <FontAwesome name="user" size={20} color={COLORS.black} />
-            <TextInput
-              style={styles.searchBarInput}
-              placeholderTextColor={COLORS.gray}
-            />
-            <View style={styles.switchContainer}>
-              <Text style={styles.switchText}>
-                {isOnline ? 'Online' : 'Offline'}
-              </Text>
+        {/* Redesigned Header with Status Card */}
+        <SafeAreaView style={styles.headerSafeArea}>
+          <View style={styles.headerContainer}>
+            <View style={styles.userInfoSection}>
+              <View style={styles.avatarContainer}>
+                <FontAwesome name="user-circle" size={scale(40)} color={COLORS.white} />
+              </View>
+              <View style={styles.userTextContainer}>
+                <Text style={styles.userName}>Driver</Text>
+                <Text style={styles.userStatus}>Ready to drive</Text>
+              </View>
+            </View>
+            <View style={styles.statusCard}>
+              <View style={styles.statusIndicator}>
+                <View style={[styles.statusDot, {backgroundColor: isOnline ? COLORS.success : COLORS.error}]} />
+                <Text style={styles.statusText}>
+                  {isOnline ? 'Online' : 'Offline'}
+                </Text>
+              </View>
               <Switch
                 value={isOnline}
                 onValueChange={handleSwitchChange}
                 trackColor={{false: COLORS.gray2, true: COLORS.gray2}}
-                thumbColor={isOnline ? COLORS.green : COLORS.gray3}
+                thumbColor={isOnline ? COLORS.success : COLORS.gray3}
               />
             </View>
           </View>
-        </View>
+        </SafeAreaView>
+
         {state.isLoading ? (
           <View style={styles.loaderBox}>
             <ActivityIndicator size={scale(40)} color={COLORS.Amber} />
@@ -770,58 +786,60 @@ export default function FindingJob({navigation}) {
               )}
           </MapView>
         )}
+        
+        {/* Redesigned Stats Cards - Only when no ongoing ride */}
         {!ongoingPickedRide && (
-          <View style={styles.preBookedAndEarningsContainer}>
-            <View style={styles.preBookedContainer}>
-              <View style={styles.calendarIconContainer}>
-                <AntDesign name="calendar" size={30} color={COLORS.white} />
+          <View style={styles.statsContainer}>
+            <TouchableOpacity 
+              style={styles.statCard}
+              onPress={() => toggleRidePoup()}
+              activeOpacity={0.8}>
+              <View style={styles.statIconContainer}>
+                <AntDesign name="calendar" size={scale(24)} color={COLORS.themePrimary} />
               </View>
-              <TouchableOpacity
-                onPress={() => toggleRidePoup()}
-                style={styles.preBookedTextContainer}>
-                <Text style={styles.preBookedTitle}>Rides</Text>
-                <Text style={styles.preBookedCount}>10</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.todayEarningsContainer}>
-              <View style={styles.earningsIconContainer}>
-                <FontAwesome name="money" size={30} color={COLORS.white} />
+              <View style={styles.statInfo}>
+                <Text style={styles.statLabel}>Pre-booked Rides</Text>
+                <Text style={styles.statValue}>10</Text>
               </View>
-              <View style={styles.todayEarningsTextContainer}>
-                <Text style={styles.preBookedTitle}>Today Earnings</Text>
-                <Text style={styles.preBookedCount}>₹500</Text>
+            </TouchableOpacity>
+            <View style={styles.statDivider} />
+            <View style={styles.statCard}>
+              <View style={styles.statIconContainer}>
+                <FontAwesome name="money" size={scale(24)} color={COLORS.success} />
+              </View>
+              <View style={styles.statInfo}>
+                <Text style={styles.statLabel}>Today's Earnings</Text>
+                <Text style={styles.statValue}>₹500</Text>
               </View>
             </View>
           </View>
         )}
 
-        {/* Re-Center Button  */}
+        {/* Redesigned Action Buttons */}
         <TouchableOpacity
           style={[
-            styles.LocationTargeticon,
-            {bottom: ongoingPickedRide ? 90 : 20},
+            styles.centerButton,
+            {bottom: ongoingPickedRide ? 120 : 90},
           ]}
           onPress={onCenter}>
-          <Image source={Icons.LocationTarget} style={styles.TargetButton} />
+          <View style={styles.centerButtonInner}>
+            <Image source={Icons.LocationTarget} style={styles.targetIcon} />
+          </View>
         </TouchableOpacity>
 
-        {/* Complete Ride & Ride Innfo Buttons */}
         {ongoingPickedRide && (
           <>
             <TouchableOpacity
-              style={styles.CompleteRideicon}
+              style={styles.completeRideButton}
               onPress={handleCompleteRide}>
-              <Text style={styles.switchText}>Complete Ride</Text>
+              <MaterialIcons name="done-all" size={scale(20)} color={COLORS.white} />
+              <Text style={styles.completeRideText}>Complete Ride</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.RideDetailsIconButton}
+              style={styles.infoButton}
               onPress={() => setShowOngoingRideModal(!showOngoingRideModal)}>
-              <MaterialIcons
-                name="info"
-                size={scale(20)}
-                color={COLORS.black}
-              />
+              <MaterialIcons name="info" size={scale(22)} color={COLORS.white} />
             </TouchableOpacity>
           </>
         )}
@@ -862,13 +880,199 @@ export default function FindingJob({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  headerSafeArea: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 20,
+    backgroundColor: 'transparent',
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: scale(16),
+    paddingTop: Platform.OS === 'ios' ? scale(10) : scale(20),
+    paddingBottom: scale(12),
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    backdropFilter: 'blur(10px)',
+  },
+  userInfoSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarContainer: {
+    marginRight: scale(10),
+  },
+  userTextContainer: {
+    justifyContent: 'center',
+  },
+  userName: {
+    fontFamily: Fonts.Bold,
+    fontSize: moderateScale(16),
+    color: COLORS.white,
+  },
+  userStatus: {
+    fontFamily: Fonts.Regular,
+    fontSize: moderateScale(12),
+    color: COLORS.white + 'CC',
+  },
+  statusCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(6),
+    borderRadius: moderateScale(30),
+    shadowColor: COLORS.black,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  statusIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: scale(8),
+  },
+  statusDot: {
+    width: scale(8),
+    height: scale(8),
+    borderRadius: scale(4),
+    marginRight: scale(4),
+  },
+  statusText: {
+    fontFamily: Fonts.Medium,
+    fontSize: moderateScale(12),
+    color: COLORS.black,
   },
   loaderBox: {
-    height: '100%',
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.primary3,
   },
+  statsContainer: {
+    position: 'absolute',
+    top: scale(100),
+    left: scale(16),
+    right: scale(16),
+    flexDirection: 'row',
+    backgroundColor: COLORS.white,
+    borderRadius: moderateScale(16),
+    shadowColor: COLORS.black,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    overflow: 'hidden',
+  },
+  statCard: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: scale(12),
+    paddingHorizontal: scale(12),
+  },
+  statIconContainer: {
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
+    backgroundColor: COLORS.gray1 + '30',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: scale(10),
+  },
+  statInfo: {
+    flex: 1,
+  },
+  statLabel: {
+    fontFamily: Fonts.Medium,
+    fontSize: moderateScale(12),
+    color: COLORS.gray,
+    marginBottom: scale(2),
+  },
+  statValue: {
+    fontFamily: Fonts.Bold,
+    fontSize: moderateScale(16),
+    color: COLORS.black,
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: COLORS.gray2,
+    marginVertical: scale(12),
+  },
+  centerButton: {
+    position: 'absolute',
+    right: 20,
+    backgroundColor: COLORS.white,
+    borderRadius: scale(40),
+    shadowColor: COLORS.black,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 6,
+    zIndex: 10,
+  },
+  centerButtonInner: {
+    width: scale(48),
+    height: scale(48),
+    borderRadius: scale(24),
+    backgroundColor: COLORS.themePrimary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  targetIcon: {
+    height: scale(22),
+    width: scale(22),
+    resizeMode: 'contain',
+    tintColor: COLORS.white,
+  },
+  completeRideButton: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: COLORS.success,
+    paddingVertical: verticalScale(14),
+    borderRadius: moderateScale(30),
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: COLORS.black,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+    zIndex: 10,
+  },
+  completeRideText: {
+    fontFamily: Fonts.Bold,
+    fontSize: moderateScale(16),
+    color: COLORS.white,
+    marginLeft: scale(8),
+  },
+  infoButton: {
+    position: 'absolute',
+    bottom: 100,
+    right: 20,
+    backgroundColor: COLORS.themePrimary,
+    width: scale(48),
+    height: scale(48),
+    borderRadius: scale(24),
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: COLORS.black,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+    zIndex: 10,
+  },
+  // Keep old styles for compatibility but they might not be used
   map: {
     ...StyleSheet.absoluteFillObject,
   },
@@ -949,7 +1153,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(16),
     marginHorizontal: scale(15),
   },
-  avatarContainer: {
+  avatarContainer2: {
     marginRight: scale(12),
   },
   avatarPlaceholder: {

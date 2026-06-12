@@ -1,26 +1,45 @@
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState, useRef} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  ImageBackground,
+  Animated,
+  Dimensions,
+} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import {Container} from '../../components/Container/Container';
 import {COLORS} from '../../theme/Colors';
 import {moderateScale, scale, verticalScale} from '../../utils/Scalling';
 import {Fonts} from '../../theme/Fonts';
-import CustomInput from '../../components/CustomTextInput/CustomInput';
-import Icon from 'react-native-vector-icons/Ionicons';
-import PrimaryButton from '../../components/Button/PrimaryButton';
-import Icon2 from 'react-native-vector-icons/AntDesign';
 import CustomInputField from '../../components/CustomTextInput/CustomInputField';
 import CustomPasswordInputField from '../../components/CustomTextInput/CustomPasswordInputField';
-import { showToast } from '../../components/CustomToast/CustomToast';
-import { isStringNullBlank, isValidEmail, isValidPassword } from '../../utils/validations';
+import PrimaryButton from '../../components/Button/PrimaryButton';
+import Icon from 'react-native-vector-icons/Ionicons';
+import Icon2 from 'react-native-vector-icons/AntDesign';
+import {showToast} from '../../components/CustomToast/CustomToast';
+import {
+  isStringNullBlank,
+  isValidEmail,
+  isValidPassword,
+} from '../../utils/validations';
 import axios from 'axios';
-import { GET_PROFILE, SIGN_IN } from '../../api/Endpoints';
-import { BASE_URL } from '../../api/BaseUrl';
-import messaging from '@react-native-firebase/messaging';
-// import { getFCMToken } from '../../utils/notifications';
-import { getFCMToken } from '../../utils/NotificationHelper';
-import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
-import { loadUserLocalMethod, saveUserLocalMethod, setUserData } from '../../redux/slice/UserSlice';
+import {GET_PROFILE, SIGN_IN} from '../../api/Endpoints';
+import {BASE_URL} from '../../api/BaseUrl';
+import {getFCMToken} from '../../utils/NotificationHelper';
+import {useDispatch} from 'react-redux';
+import {useNavigation} from '@react-navigation/native';
+import {
+  loadUserLocalMethod,
+  saveUserLocalMethod,
+  setUserData,
+} from '../../redux/slice/UserSlice';
+
+const {width, height} = Dimensions.get('window');
 
 export default function SignIn() {
   const dispatch = useDispatch();
@@ -30,278 +49,326 @@ export default function SignIn() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [fcmToken, setFcmToken] = useState('');
-  const [userLocalData, setUserLocalData] = useState(null);
 
-  useEffect(()=> {
+  // Animations
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
     askFCMToken();
-  },[]);
+  }, []);
 
   const askFCMToken = async () => {
-    const userLData = await loadUserLocalMethod();
     const token = await getFCMToken();
-    // console.log("fcm token....",token)
-    console.log('user Local data from Login --- ', userLData);
     setFcmToken(token);
-  }
+  };
 
   const handleLogin = async () => {
     setLoading(true);
     try {
-      if (isStringNullBlank(email, "Email")) return;
+      if (isStringNullBlank(email, 'Email')) return;
       if (!isValidEmail(email)) return;
-      
-      if (isStringNullBlank(password, "Password")) return;
+
+      if (isStringNullBlank(password, 'Password')) return;
       if (!isValidPassword(password)) return;
 
       const response = await axios({
         method: SIGN_IN.method,
         url: `${BASE_URL}${SIGN_IN.url}`,
-        data: {
-          email,
-          password,
-          fcmToken
-        }
+        data: {email, password, fcmToken},
       });
       setLoading(false);
-      console.warn("Response for Login -> ", response);
-      
-      if(response.status === 200 && Boolean(response?.data?.token)) {
-        const userData = await fetchUserProfile(response?.data?.token);
-        // console.log("userData profile data -> ", userData);
 
-        dispatch(setUserData({
-          ...userData,
-          token: response?.data?.token,
-          isLoggedIn: true,
-          isSignupCompleted: true,
-          signupType: "email",
-          isRidePopupVisible: false
-        }));
+      if (response.status === 200 && Boolean(response?.data?.token)) {
+        const userData = await fetchUserProfile(response?.data?.token);
+        dispatch(
+          setUserData({
+            ...userData,
+            token: response?.data?.token,
+            isLoggedIn: true,
+            isSignupCompleted: true,
+            signupType: 'email',
+            isRidePopupVisible: false,
+          }),
+        );
         await saveUserLocalMethod({
           ...userData,
           token: response?.data?.token,
           isLoggedIn: true,
           isSignupCompleted: true,
-          signupType: "email",
+          signupType: 'email',
         });
         navigation.reset({
           index: 0,
-          routes: [{ name: 'BottomTab' }],
+          routes: [{name: 'BottomTab'}],
         });
+      } else if (response?.data?.status === 'adminVerification') {
+        showToast('error', 'Oops!', response?.data?.msg);
+      } else {
+        showToast('error', 'Oops!', response?.data?.msg || 'Server error');
       }
-      else if(response?.data?.status === "adminVerification") {
-      showToast('error', 'Oops!', response?.data?.msg);
-      }
-      else{
-        showToast('error', 'Oops!', response?.data?.msg || "Server error");
-      }
-
     } catch (error) {
-      console.log("error -> ", error)
+      console.log('error -> ', error);
       setLoading(false);
-      showToast('error', 'Login Failed', error.message || 'Failed to Login, please try again later.');
+      showToast(
+        'error',
+        'Login Failed',
+        error.message || 'Failed to Login, please try again later.',
+      );
     }
-  }
+  };
 
-  const fetchUserProfile = async (token) => {
+  const fetchUserProfile = async token => {
     try {
       const response = await axios({
         method: GET_PROFILE.method,
         url: `${BASE_URL}${GET_PROFILE.url}`,
         headers: {Authorization: `${token}`},
       });
-
-      console.log("response for fetch profile ->>>>>>", response?.data?.data)
       return response?.data?.data;
     } catch (error) {
-      console.log("error for fetch profile -> ", error)
+      console.log('error for fetch profile -> ', error);
       setLoading(false);
-      showToast('error', 'Login Failed', error.message || 'Failed to Login, please try again later.');
+      showToast(
+        'error',
+        'Login Failed',
+        error.message || 'Failed to Login, please try again later.',
+      );
     }
-  }
+  };
 
   return (
     <Container
-      statusBarStyle={'dark-content'}
+      statusBarStyle="dark-content"
       statusBarBackgroundColor={COLORS.white}
       backgroundColor={COLORS.white}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Sign In</Text>
-        <Text style={styles.subHeaderText}>
-          Hi! Welcome back, you've been missed
-        </Text>
-      </View>
+   
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{flex: 1}}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}>
+            <Animated.View
+              style={[
+                styles.headerContainer,
+                {opacity: fadeAnim, transform: [{translateY: slideAnim}]},
+              ]}>
+              <LinearGradient
+                colors={['#FF6B4A', '#FF8C42']}
+                style={styles.gradientCircle}>
+                <Icon name="car-sport" size={scale(50)} color="#FFF" />
+              </LinearGradient>
+              <Text style={styles.headerText}>Welcome Back!</Text>
+              <Text style={styles.subHeaderText}>
+                Sign in to continue your journey
+              </Text>
+            </Animated.View>
 
-      <View style={styles.inputContainer}>
-        <CustomInputField 
-          label={"Email"}
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          secureTextEntry={false}
-          placeholder={"Please Enter Your Email"}
-        />
-        <CustomPasswordInputField
-          label="Password"
-          placeholder="Enter your password"
-          value={password}
-          onChangeText={setPassword}
-        />
-        
-        {/* <Text style={[styles.label, styles.marginTop]}>Email</Text>
-        <CustomInput textInputProps={{placeholder: 'example@gmail.com'}} />
+            <Animated.View
+              style={[
+                styles.formContainer,
+                {opacity: fadeAnim, transform: [{translateY: slideAnim}]},
+              ]}>
+              <CustomInputField
+                label="Email Address"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                placeholder="hello@example.com"
+                leftIcon={<Icon2 name="mail" size={20} color={COLORS.gray} />}
+              />
+              <CustomPasswordInputField
+                label="Password"
+                placeholder="Enter your password"
+                value={password}
+                onChangeText={setPassword}
+                leftIcon={<Icon2 name="lock" size={20} color={COLORS.gray} />}
+              />
 
-        <Text style={[styles.label, styles.marginTop]}>Password</Text>
-        <CustomInput
-          textInputProps={{
-            placeholder: 'Password',
-            secureTextEntry: !showPassword,
-          }}
-          right={
-            <Icon
-              name={showPassword ? 'eye-outline' : 'eye-off-outline'}
-              size={20}
-              color={COLORS.gray}
-              style={styles.icon}
-              onPress={() => setShowPassword(!showPassword)}
-            />
-          }
-        /> */}
-      </View>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('ForgotPassword')}
+                style={styles.forgotContainer}>
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-        <Text style={styles.forgotPasswordText}>Forgot Password</Text>
-      </TouchableOpacity>
+              <PrimaryButton
+                buttonText="Sign In"
+                style={styles.primaryButton}
+                onPress={handleLogin}
+                loading={loading}
+              />
 
-      <PrimaryButton
-        buttonText="Sign In"
-        style={styles.primaryButton}
-        onPress={handleLogin}
-        loading={loading}
-      />
+              <View style={styles.dividerContainer}>
+                <View style={styles.divider} />
+                <Text style={styles.dividerText}>Or continue with</Text>
+                <View style={styles.divider} />
+              </View>
 
-      <View style={styles.dividerContainer}>
-        <View style={styles.divider} />
-        <Text style={styles.dividerText}>Or Sign up with</Text>
-        <View style={styles.divider} />
-      </View>
+              <View style={styles.socialIconsContainer}>
+                <TouchableOpacity style={styles.socialIconButton}>
+                  <LinearGradient
+                    colors={['#000', '#333']}
+                    style={styles.socialGradient}>
+                    <Icon2 name="apple1" size={24} color="#FFF" />
+                  </LinearGradient>
+                </TouchableOpacity>
 
-      <View style={styles.socialIconsContainer}>
-        <TouchableOpacity style={styles.socialIconButton}>
-          <Icon2 name="apple1" size={24} color="#000" />
-        </TouchableOpacity>
+                <TouchableOpacity style={styles.socialIconButton}>
+                  <LinearGradient
+                    colors={['#DB4437', '#B33A2E']}
+                    style={styles.socialGradient}>
+                    <Icon2 name="google" size={24} color="#FFF" />
+                  </LinearGradient>
+                </TouchableOpacity>
 
-        <TouchableOpacity style={styles.socialIconButton}>
-          <Icon2 name="google" size={24} color="#DB4437" />
-        </TouchableOpacity>
+                <TouchableOpacity style={styles.socialIconButton}>
+                  <LinearGradient
+                    colors={['#4267B2', '#2F477A']}
+                    style={styles.socialGradient}>
+                    <Icon2 name="facebook-square" size={24} color="#FFF" />
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
 
-        <TouchableOpacity style={styles.socialIconButton}>
-          <Icon2 name="facebook-square" size={24} color="#4267B2" />
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.footerText}>
-        Don't have an account? <Text style={styles.signUpText}  onPress={() => navigation.navigate('SignUp')}>Sign Up</Text>
-      </Text>
+              <Text style={styles.footerText}>
+                Don't have an account?{' '}
+                <Text
+                  style={styles.signUpText}
+                  onPress={() => navigation.navigate('SignUp')}>
+                  Sign Up
+                </Text>
+              </Text>
+            </Animated.View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+     
     </Container>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: verticalScale(30),
+  },
   headerContainer: {
     alignItems: 'center',
-    marginTop: scale(30),
+    marginTop: scale(40),
+    marginBottom: scale(20),
+  },
+  gradientCircle: {
+    width: scale(100),
+    height: scale(100),
+    borderRadius: scale(50),
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: scale(20),
+    shadowColor: '#FF8C42',
+    shadowOffset: {width: 0, height: 8},
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 10,
   },
   headerText: {
-    textAlign: 'center',
+    fontSize: moderateScale(28),
+    fontFamily: Fonts.Bold,
     color: COLORS.black,
-    fontSize: moderateScale(22),
-    fontFamily: Fonts.Medium,
+    letterSpacing: 0.5,
   },
   subHeaderText: {
-    textAlign: 'center',
-    color: COLORS.gray,
     fontSize: moderateScale(15),
     fontFamily: Fonts.Regular,
+    color: COLORS.gray,
+    marginTop: scale(6),
+  },
+  formContainer: {
+    marginHorizontal: scale(20),
     marginTop: scale(10),
   },
-  inputContainer: {
-    marginHorizontal: scale(15),
-    marginTop: scale(10),
-  },
-  label: {
-    marginVertical: verticalScale(3),
-    color: COLORS.black,
-    fontFamily: Fonts.Medium,
-    fontSize: moderateScale(15),
-  },
-  marginTop: {
-    marginTop: scale(15),
-  },
-  icon: {
-    marginRight: scale(15),
+  forgotContainer: {
+    alignSelf: 'flex-end',
+    marginTop: verticalScale(8),
+    marginBottom: verticalScale(8),
   },
   forgotPasswordText: {
-    textAlign: 'right',
-    marginRight: scale(15),
-    marginTop: scale(10),
     fontFamily: Fonts.Medium,
+    fontSize: moderateScale(14),
+    color: COLORS.themePrimary,
     textDecorationLine: 'underline',
   },
   primaryButton: {
-    borderRadius: moderateScale(30),
-    marginHorizontal: scale(15),
-    marginTop: scale(20),
+    borderRadius: moderateScale(40),
+    marginTop: scale(15),
+    height: verticalScale(50),
+    shadowColor: COLORS.themePrimary,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: scale(15),
-    marginVertical: scale(20),
+    marginVertical: verticalScale(25),
   },
   divider: {
     flex: 1,
-    height: 0.5,
-    backgroundColor: COLORS.gray,
+    height: 1,
+    backgroundColor: '#E0E0E0',
   },
   dividerText: {
-    paddingHorizontal: scale(10),
+    paddingHorizontal: scale(12),
     color: COLORS.gray,
     fontFamily: Fonts.Regular,
-    fontSize: moderateScale(14),
+    fontSize: moderateScale(13),
   },
   socialIconsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
-    gap: 20,
-    marginVertical: 15,
+    gap: scale(20),
+    marginBottom: verticalScale(25),
   },
   socialIconButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#F5F5F5',
+    borderRadius: scale(30),
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  socialGradient: {
+    width: scale(55),
+    height: scale(55),
+    borderRadius: scale(27.5),
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
   },
   footerText: {
-    color: COLORS.black,
     textAlign: 'center',
-    fontSize: moderateScale(16),
+    fontSize: moderateScale(15),
     fontFamily: Fonts.Medium,
-    marginTop: scale(20),
+    color: COLORS.black,
+    marginBottom: verticalScale(20),
   },
   signUpText: {
-    color: COLORS.Amber,
+    color: COLORS.themePrimary,
     fontFamily: Fonts.Bold,
     textDecorationLine: 'underline',
   },

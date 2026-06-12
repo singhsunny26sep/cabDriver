@@ -313,7 +313,7 @@ const AddVehicle = () => {
             vehicleNo: vehicleNumber,
             location: {
               type: 'Point', 
-              coordinates: [location?.latitude, location?.longitude],
+              coordinates: [26.71,81.43],
             },
             puc: pucNumber,
             vehicleRegistrationNo: rcNumber,
@@ -345,7 +345,7 @@ const AddVehicle = () => {
       }
     } catch (error) {
       setLoading(false);
-      console.log('error api for add vehicle ->', error);
+      console.log('error api for add vehicle ->', error.response?.data);
       const errorMessage =
         error?.response?.data?.message ||
         'Network error. Please check your connection';
