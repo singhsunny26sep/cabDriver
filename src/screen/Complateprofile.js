@@ -20,7 +20,7 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function Complateprofile() {
   const dispatch = useDispatch();
-  const userData = useSelector(selectUserData)
+  const userData = useSelector(selectUserData);
   const navigation = useNavigation();
 
   const [selectedGender, setSelectedGender] = useState(null);
@@ -35,7 +35,7 @@ export default function Complateprofile() {
   const [city, setCity] = useState(null);
   const [locality, setLocality] = useState(null);
   const [pincode, setPincode] = useState('');
-  
+
   const [loading, setLoading] = useState(false);
   const [loadingCountries, setLoadingCountries] = useState(false);
   const [loadingStates, setLoadingStates] = useState(false);
@@ -98,31 +98,31 @@ export default function Complateprofile() {
     setLoading(true);
     try {
       // Validate all fields
-      if (isStringNullBlank(number, "Phone Number")) return;
-      if (!isValidNumeric(number, "Phone Number", true, 10)) return;
+      if (isStringNullBlank(number, 'Phone Number')) {return;}
+      if (!isValidNumeric(number, 'Phone Number', true, 10)) {return;}
 
-      if(!Boolean(selectedGender)){
+      if(!selectedGender){
         showToast('error', 'Validation Error', 'Please select gender!');
         return;
       }
 
-      if(!Boolean(country)){
+      if(!country){
         showToast('error', 'Validation Error', 'Please select country!');
         return;
       }
-      if(!Boolean(statee)){
+      if(!statee){
         showToast('error', 'Validation Error', 'Please select state!');
         return;
       }
-      if(!Boolean(city)){
+      if(!city){
         showToast('error', 'Validation Error', 'Please select city!');
         return;
       }
 
-      if (isStringNullBlank(pincode, "Pin-Code")) return;
-      if (!isValidNumeric(pincode, "Pin-Code", false, 6)) return;
-      
-      if (isStringNullBlank(locality, "Locality")) return;
+      if (isStringNullBlank(pincode, 'Pin-Code')) {return;}
+      if (!isValidNumeric(pincode, 'Pin-Code', false, 6)) {return;}
+
+      if (isStringNullBlank(locality, 'Locality')) {return;}
 
       dispatch(setUserData({
         ...userLocalData,
@@ -149,13 +149,13 @@ export default function Complateprofile() {
         isSignupCompleted: false,
       });
 
-      navigation.navigate('Welcome')
+      navigation.navigate('Welcome');
 
     } catch (error) {
       setLoading(true);
-      showToast('error', 'Complete Profile Failed', error.message || 'Failed to updating details!');      
+      showToast('error', 'Complete Profile Failed', error.message || 'Failed to updating details!');
     }
-  }
+  };
 
   return (
     <Container
@@ -224,7 +224,7 @@ export default function Complateprofile() {
             style={styles.inputBox}
             disabled={!country}
             loading={loadingStates}
-            emptyMessage={country ? "No states available" : "Select country first"}
+            emptyMessage={country ? 'No states available' : 'Select country first'}
             search
             searchPlaceholder="Search states..."
           />
@@ -240,16 +240,16 @@ export default function Complateprofile() {
             // search
             // searchPlaceholder="Search cities..."
             loading={loadingCities}
-            emptyMessage={"No cities available OR Select state first"}
+            emptyMessage={'No cities available OR Select state first'}
           />
 
-          <CustomInputField 
-            label={"Locality"}
+          <CustomInputField
+            label={'Locality'}
             value={locality}
             onChangeText={setLocality}
             keyboardType="default"
             secureTextEntry={false}
-            placeholder={"Please Enter Your Locality"}
+            placeholder={'Please Enter Your Locality'}
             inputContainerStyle={{marginTop: scale(10)}}
           />
 
@@ -273,7 +273,7 @@ export default function Complateprofile() {
             placeholder="Select City"
             style={styles.inputBox}
           />
-          
+
           <Text style={[styles.label, styles.marginTop]}>
             City
           </Text>
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   formContainer: {
     marginTop: scale(16),
     marginHorizontal: scale(15),
-    flex:1
+    flex:1,
   },
   label: {
     marginVertical: verticalScale(3),

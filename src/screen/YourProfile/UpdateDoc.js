@@ -26,8 +26,8 @@ const UpdateDoc = ({}) => {
   ];
 
   const renderMenuItem = item => (
-    <TouchableOpacity 
-      key={item.title} 
+    <TouchableOpacity
+      key={item.title}
       style={styles.menuItem}
       onPress={() => navigation.navigate(item.route)}>
       <Text style={styles.menuItemText}>{item.title}</Text>
@@ -40,11 +40,11 @@ const UpdateDoc = ({}) => {
       statusBarStyle={'dark-content'}
       statusBarBackgroundColor={COLORS.white}
       backgroundColor={COLORS.white}>
-      <AppBar back title='Update Document Details'/>
+      <AppBar back title="Update Document Details"/>
       <View style={styles.menuContainer}>
         {menuItems.map(renderMenuItem)}
         <Text style={styles.submittedText}>Submitted Steps</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.menuItem}
           onPress={() => navigation.navigate('GovernmentID')}>
           <Text style={styles.menuItemText}>Government ID</Text>
@@ -57,25 +57,25 @@ const UpdateDoc = ({}) => {
 export default UpdateDoc;
 
 const styles = StyleSheet.create({
-  
+
   header: {
-    padding:scale (20),
+    padding:scale(20),
   },
   welcomeText: {
-    fontSize:moderateScale (24),
+    fontSize:moderateScale(24),
     fontFamily:Fonts.Bold,
-    marginBottom:scale (8),
+    marginBottom:scale(8),
   },
   subText: {
-    fontSize:moderateScale (18),
+    fontSize:moderateScale(18),
     color:COLORS.gray,
-    marginBottom:scale (10),
-    fontFamily:Fonts.Medium
+    marginBottom:scale(10),
+    fontFamily:Fonts.Medium,
   },
   menuContainer: {
     flex: 1,
     paddingHorizontal: scale(15),
-    marginTop:scale(20)
+    marginTop:scale(20),
   },
   menuItem: {
     flexDirection: 'row',
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontSize: moderateScale(16),
     color: COLORS.black,
-    fontFamily:Fonts.Light
+    fontFamily:Fonts.Light,
   },
   submittedText: {
     fontSize: moderateScale(16),
@@ -99,13 +99,13 @@ const styles = StyleSheet.create({
     marginVertical: scale(5),
     fontFamily:Fonts.Medium,
     marginLeft:scale(3),
-    fontFamily:Fonts.Medium
+    fontFamily:Fonts.Medium,
   },
   primaryButton: {
     borderRadius: moderateScale(30),
     marginHorizontal: scale(15),
     marginTop: scale(20),
-    bottom:scale(15)
+    bottom:scale(15),
   },
 });
 

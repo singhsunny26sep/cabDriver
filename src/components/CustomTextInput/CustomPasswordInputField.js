@@ -5,17 +5,17 @@ import { scale } from '../../utils/Scalling';
 import { COLORS } from '../../theme/Colors';
 import { Fonts } from '../../theme/Fonts';
 
-const CustomPasswordInputField = ({ 
-  label, 
-  placeholder, 
-  value, 
+const CustomPasswordInputField = ({
+  label,
+  placeholder,
+  value,
   onChangeText,
   autoComplete,
   autoCapitalize,
   autoFocus,
   editable,
   inputMode,
-  returnKeyType
+  returnKeyType,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -28,7 +28,7 @@ const CustomPasswordInputField = ({
       <Text style={styles.label}>{label}</Text>
       <View style={styles.passwordContainer}>
         <TextInput
-          value={value} 
+          value={value}
           onChangeText={onChangeText}
           style={styles.inputBox}
           placeholder={placeholder}
@@ -41,14 +41,14 @@ const CustomPasswordInputField = ({
           autoFocus={autoFocus}
           returnKeyType={returnKeyType}
         />
-        <TouchableOpacity 
-          style={styles.iconContainer} 
+        <TouchableOpacity
+          style={styles.iconContainer}
           onPress={toggleShowPassword}
           activeOpacity={0.7}
         >
-          <Icon 
-            name={showPassword ? 'eye-off' : 'eye'} 
-            size={scale(20)} 
+          <Icon
+            name={showPassword ? 'eye-off' : 'eye'}
+            size={scale(20)}
             color={COLORS.borderColor}
           />
         </TouchableOpacity>
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     fontSize: scale(14),
     color: COLORS.black,
     marginBottom: scale(5),
-    fontFamily: Fonts.Medium
+    fontFamily: Fonts.Medium,
   },
   passwordContainer: {
     flexDirection: 'row',
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     padding: scale(10),
     fontSize: scale(14),
     color: COLORS.black,
-    fontFamily: Fonts.Regular
+    fontFamily: Fonts.Regular,
   },
   iconContainer: {
     padding: scale(10),

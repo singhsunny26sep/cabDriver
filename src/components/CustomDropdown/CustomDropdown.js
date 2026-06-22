@@ -12,7 +12,7 @@ import {
 import {COLORS} from '../../theme/Colors';
 import {moderateScale, scale, verticalScale} from '../../utils/Scalling';
 import {Fonts} from '../../theme/Fonts';
-import Icon from'react-native-vector-icons/Entypo'
+import Icon from'react-native-vector-icons/Entypo';
 
 const CustomDropdown = ({
   data,
@@ -45,7 +45,7 @@ const CustomDropdown = ({
         <Text style={[styles.buttonText, !value && styles.placeholderText]}>
           {value || defaultButtonText}
         </Text>
-       <Icon name='chevron-small-down' size={35} color={COLORS.black}/>
+       <Icon name="chevron-small-down" size={35} color={COLORS.black}/>
       </TouchableOpacity>
 
       <Modal visible={visible} transparent animationType="fade">
@@ -53,8 +53,8 @@ const CustomDropdown = ({
           <View style={styles.modalContent}>
             <View style={styles.header}>
               <Text style={styles.headerText}>Select Gender</Text>
-              <TouchableOpacity 
-                style={styles.closeButtonContainer} 
+              <TouchableOpacity
+                style={styles.closeButtonContainer}
                 onPress={() => setVisible(false)}
               >
                 <Text style={styles.closeButton}>×</Text>
@@ -67,7 +67,7 @@ const CustomDropdown = ({
               showsVerticalScrollIndicator={false}
               bounces={false}
               contentContainerStyle={{
-                paddingVertical: scale(5)
+                paddingVertical: scale(5),
               }}
             />
           </View>
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    borderColor:COLORS.gray3
+    borderColor:COLORS.gray3,
   },
   header: {
     flexDirection: 'row',
@@ -157,4 +157,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomDropdown; 
+export default CustomDropdown;

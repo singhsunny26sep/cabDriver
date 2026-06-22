@@ -3,7 +3,7 @@ import {showToast} from '../components/CustomToast/CustomToast';
 // Check if string is null, undefined, or blank
 export const isStringNullBlank = (str, fieldName) => {
   if (str === null || str === undefined || str.trim() === '') {
-    const message = `${fieldName} should not be empty!`
+    const message = `${fieldName} should not be empty!`;
     showToast('error', 'Validation Error', message);
     return true;
   }
@@ -67,8 +67,8 @@ export const isValidNumeric = (
     minDigits = 6
   ) => {
     // 1. Check if empty/null (using existing helper)
-    if (isStringNullBlank(input)) return false;
-  
+    if (isStringNullBlank(input)) {return false;}
+
     // 2. Check for invalid characters
     const charRegex = allowHyphen ? /^[0-9-]+$/ : /^[0-9]+$/;
     if (!charRegex.test(input)) {
@@ -79,7 +79,7 @@ export const isValidNumeric = (
       );
       return false;
     }
-  
+
     // 3. Check hyphen rules (if allowed)
     if (allowHyphen) {
       if (input.startsWith('-') || input.endsWith('-') || input.includes('--')) {
@@ -87,7 +87,7 @@ export const isValidNumeric = (
         return false;
       }
     }
-  
+
     // 4. Check minimum digits by counting NON-hyphen characters
     const digitCount = input.replace(/-/g, '').length;
     if (digitCount < minDigits) {
@@ -98,18 +98,18 @@ export const isValidNumeric = (
       );
       return false;
     }
-  
+
     return true; // All validations passed
   };
 
   // Validate Indian Driving License Number format
 export const isValidLicense = (licenseNumber) => {
-  // Indian DL format: 
+  // Indian DL format:
   // - State code (2 letters)
   // - Year (2 digits, or 4 digits for newer ones)
   // - Unique alphanumeric sequence (up to 13 characters)
   const licenseRegex = /^[A-Z]{2}[0-9]{2}[0-9]{11}$|^[A-Z]{2}[0-9]{4}[0-9]{9}$/;
-  
+
   if (!licenseRegex.test(licenseNumber)) {
     showToast(
       'error',
@@ -128,10 +128,10 @@ export const isValidRCNumber = (rcNumber) => {
   // New: TN 01 AB CD 1234
   // BH series: 22 BH 2345 AB
   const rcRegex = /^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{4}$|^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[A-Z]{1,2}[0-9]{4}$|^[0-9]{2}BH[0-9]{4}[A-Z]{1,2}$/i;
-  
+
   // Remove all whitespace for validation
   const cleanedRC = rcNumber.replace(/\s/g, '').toUpperCase();
-  
+
   if (!rcRegex.test(cleanedRC)) {
     showToast(
       'error',

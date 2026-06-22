@@ -46,8 +46,8 @@ export default function EnableLocationAccess() {
         </View>
         <View style={styles.buttonContainer}>
           <View style={styles.buttonWrapper}>
-            <PrimaryButton 
-              buttonText="Allow Location Access" 
+            <PrimaryButton
+              buttonText="Allow Location Access"
               onPress={()=>  navigation.navigate('FindingJob')}
             />
             <TouchableOpacity>

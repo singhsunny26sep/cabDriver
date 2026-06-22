@@ -60,7 +60,7 @@ export default function Earning({}) {
   );
 
   const handleConfirmPayment = async () => {
-    if (!amount) return;
+    if (!amount) {return;}
 
     const result = await initiatePayment(
       {

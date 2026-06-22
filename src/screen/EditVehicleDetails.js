@@ -107,7 +107,7 @@ const EditVehicleDetails = () => {
     setPickerModalVisible(!pickerModalVisible);
   };
   const renderUploadedImages = () => {
-    if (vehicleImages.length === 0) return null;
+    if (vehicleImages.length === 0) {return null;}
 
     return (
       <View style={styles.imagesPreviewContainer}>
@@ -221,14 +221,14 @@ const EditVehicleDetails = () => {
   };
 
   const validateFields = () => {
-    if (!Boolean(vehicleType)) {
+    if (!vehicleType) {
       showToast('error', 'Validation Error', 'Please select Vehicle Type!');
       return false;
     }
-    if (isStringNullBlank(vehicleBrand, "Vehicle's Brand")) return false;
-    if (isStringNullBlank(vehicleModel, "Vehicle's Model")) return false;
-    if (isStringNullBlank(vehicleNumber, "Vehicle's Number")) return false;
-    if (!Boolean(vehicleFuelType)) {
+    if (isStringNullBlank(vehicleBrand, "Vehicle's Brand")) {return false;}
+    if (isStringNullBlank(vehicleModel, "Vehicle's Model")) {return false;}
+    if (isStringNullBlank(vehicleNumber, "Vehicle's Number")) {return false;}
+    if (!vehicleFuelType) {
       showToast(
         'error',
         'Validation Error',
@@ -236,7 +236,7 @@ const EditVehicleDetails = () => {
       );
       return false;
     }
-    if (!Boolean(vehicleTransmissionType)) {
+    if (!vehicleTransmissionType) {
       showToast(
         'error',
         'Validation Error',
@@ -245,8 +245,8 @@ const EditVehicleDetails = () => {
       return false;
     }
     if (isStringNullBlank(vehicleDescription, "Vehicle's Description"))
-      return false;
-    if (!Boolean(seatingCapacity)) {
+      {return false;}
+    if (!seatingCapacity) {
       showToast(
         'error',
         'Validation Error',
@@ -254,7 +254,7 @@ const EditVehicleDetails = () => {
       );
       return false;
     }
-    if (!Boolean(luggageCapacity)) {
+    if (!luggageCapacity) {
       showToast(
         'error',
         'Validation Error',
@@ -262,21 +262,21 @@ const EditVehicleDetails = () => {
       );
       return false;
     }
-    if (isStringNullBlank(maxPorwer, "Vehicle's Max Power")) return false;
+    if (isStringNullBlank(maxPorwer, "Vehicle's Max Power")) {return false;}
     if (isStringNullBlank(fuelCostAverage, "Vehicle's Fuel Cost Average"))
-      return false;
-    if (isStringNullBlank(maxSpeed, "Vehicle's Max Speed")) return false;
+      {return false;}
+    if (isStringNullBlank(maxSpeed, "Vehicle's Max Speed")) {return false;}
     if (
       isStringNullBlank(zeroToSixtySpeedTime, "Vehicle's zero-Sixty Speed Time")
     )
-      return false;
+      {return false;}
 
-    if (isStringNullBlank(rcNumber, "Vehicle's RC")) return false;
-    if (isStringNullBlank(pucNumber, "Vehicle's PUC")) return false;
+    if (isStringNullBlank(rcNumber, "Vehicle's RC")) {return false;}
+    if (isStringNullBlank(pucNumber, "Vehicle's PUC")) {return false;}
     if (isStringNullBlank(insuranceNumber, "Vehicle's Insurance Number"))
-      return false;
+      {return false;}
     if (isStringNullBlank(permitNumber, "Vehicle's Permit Number"))
-      return false;
+      {return false;}
 
     if (vehicleImages?.length < 3) {
       showToast(
@@ -290,7 +290,7 @@ const EditVehicleDetails = () => {
     return true;
   };
   const handleUpdate = async () => {
-    if (!validateFields()) return;
+    if (!validateFields()) {return;}
     await updateVehicle();
   };
   const updateVehicle = async () => {

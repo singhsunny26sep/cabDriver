@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Platform,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {Container} from '../components/Container/Container';
@@ -31,6 +32,8 @@ import Modal from 'react-native-modal';
 import PrimaryButton from '../components/Button/PrimaryButton';
 import Icons from '../assets/Icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import ImagePicker from 'react-native-image-crop-picker';
 import {showToast} from '../components/CustomToast/CustomToast';
 import {CLOUDINARY_PRESET, CLOUDINARY_CLOUD_NAME} from '../utils/contants';
@@ -46,27 +49,23 @@ const AddVehicle = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const [vehicleType, setVehicleType] = useState(''); // type [car | bike | taxi | cycle]
-  const [vehicleBrand, setVehicleBrand] = useState(''); // brand
-  const [vehicleModel, setVehicleModel] = useState(''); // model
-  const [vehicleNumber, setVehicleNumber] = useState(''); // vehicle numbe
-  const [vehicleFuelType, setVehicleFuelType] = useState(''); // fuel type
-  const [vehicleTransmissionType, setVehicleTransmissionType] = useState(''); // transmission type
-  const [vehicleDescription, setVehicleDescription] = useState(''); // description
-  const [seatingCapacity, setSeatingCapacity] = useState(''); // seating capacity
-  const [luggageCapacity, setLuggageCapacity] = useState(''); // luggage capacity
-  const [maxPorwer, setMaxPorwer] = useState(''); // maximum power
-  const [fuelCostAverage, setFuelCostAverage] = useState(''); // fuel cost average
-  const [maxSpeed, setMaxSpeed] = useState(''); // max speed
-  const [zeroToSixtySpeedTime, setZeroToSixtySpeedTime] = useState(''); // zero to sixty speed time
-
+  const [vehicleType, setVehicleType] = useState('');
+  const [vehicleBrand, setVehicleBrand] = useState('');
+  const [vehicleModel, setVehicleModel] = useState('');
+  const [vehicleNumber, setVehicleNumber] = useState('');
+  const [vehicleFuelType, setVehicleFuelType] = useState('');
+  const [vehicleTransmissionType, setVehicleTransmissionType] = useState('');
+  const [vehicleDescription, setVehicleDescription] = useState('');
+  const [seatingCapacity, setSeatingCapacity] = useState('');
+  const [luggageCapacity, setLuggageCapacity] = useState('');
+  const [maxPorwer, setMaxPorwer] = useState('');
+  const [fuelCostAverage, setFuelCostAverage] = useState('');
+  const [maxSpeed, setMaxSpeed] = useState('');
+  const [zeroToSixtySpeedTime, setZeroToSixtySpeedTime] = useState('');
   const [rcNumber, setRcNumber] = useState('');
   const [pucNumber, setPucNumber] = useState('');
   const [insuranceNumber, setInsuranceNumber] = useState('');
   const [permitNumber, setPermitNumber] = useState('');
-
-  //   const [dailyRate, setDailyRate] = useState(''); // daily rates
-  //   const [monthlyRate, setMonthlyRate] = useState(''); // monthly rates
 
   const [userLocalData, setUserLocalData] = useState(null);
   const [vehicleImages, setVehicleImages] = useState([]);
@@ -108,19 +107,15 @@ const AddVehicle = () => {
       const selectedImages = await pickerMethod(options);
 
       if (multiple) {
-        // Handle multiple images
         if (selectedImages && selectedImages.length > 0) {
           setPickerModalVisible(false);
           const urls = await uploadMultipleImagesToCloudinary(selectedImages);
           setVehicleImages(prev => [...prev, ...urls]);
         }
       } else {
-        // Handle single image
         if (selectedImages.data) {
           setPickerModalVisible(false);
           const url = await uploadSingleImageToCloudinary(selectedImages.data);
-          // For single image uploads, you might want to handle differently
-          // Here I'm adding to the array, but you could set it separately
           setVehicleImages(prev => [...prev, url]);
         }
       }
@@ -130,6 +125,7 @@ const AddVehicle = () => {
       setPickerModalVisible(false);
     }
   };
+
   const uploadSingleImageToCloudinary = async base64Image => {
     setIsUploading(true);
     try {
@@ -162,6 +158,7 @@ const AddVehicle = () => {
       setIsUploading(false);
     }
   };
+
   const uploadMultipleImagesToCloudinary = async images => {
     setIsUploading(true);
     try {
@@ -171,9 +168,8 @@ const AddVehicle = () => {
         }
         return null;
       });
-
       const urls = await Promise.all(uploadPromises);
-      return urls.filter(url => url !== null); // Filter out any failed uploads
+      return urls.filter(url => url !== null);
     } catch (error) {
       console.error('Multiple upload error:', error);
       showToast('error', 'Upload Failed', 'Some images failed to upload');
@@ -182,13 +178,14 @@ const AddVehicle = () => {
       setIsUploading(false);
     }
   };
+
   const renderUploadedImages = () => {
     if (vehicleImages.length === 0) return null;
 
     return (
       <View style={styles.imagesPreviewContainer}>
-        <Text style={styles.uploadedImagesLabel}>Uploaded Images:</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <Text style={styles.sectionSubtitle}>Uploaded Images ({vehicleImages.length}/6)</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.imageScrollContent}>
           {vehicleImages.map((uri, index) => (
             <View key={index} style={styles.imagePreviewWrapper}>
               <Image source={{uri}} style={styles.imagePreview} />
@@ -199,7 +196,7 @@ const AddVehicle = () => {
                   updatedImages.splice(index, 1);
                   setVehicleImages(updatedImages);
                 }}>
-                <Icon name="close" size={16} color={COLORS.white} />
+                <Icon name="close" size={14} color="#FFF" />
               </TouchableOpacity>
             </View>
           ))}
@@ -209,75 +206,42 @@ const AddVehicle = () => {
   };
 
   const validateFields = () => {
-    if (!Boolean(vehicleType)) {
-      console.log('check 1');
+    if (!vehicleType) {
       showToast('error', 'Validation Error', 'Please select Vehicle Type!');
       return false;
     }
     if (isStringNullBlank(vehicleBrand, "Vehicle's Brand")) return false;
     if (isStringNullBlank(vehicleModel, "Vehicle's Model")) return false;
     if (isStringNullBlank(vehicleNumber, "Vehicle's Number")) return false;
-    if (!Boolean(vehicleFuelType)) {
-      showToast(
-        'error',
-        'Validation Error',
-        'Please select Vehicle Fuel Type!',
-      );
+    if (!vehicleFuelType) {
+      showToast('error', 'Validation Error', 'Please select Vehicle Fuel Type!');
       return false;
     }
-    if (!Boolean(vehicleTransmissionType)) {
-      showToast(
-        'error',
-        'Validation Error',
-        'Please select Vehicle Transmission Type!',
-      );
+    if (!vehicleTransmissionType) {
+      showToast('error', 'Validation Error', 'Please select Vehicle Transmission Type!');
       return false;
     }
-    if (isStringNullBlank(vehicleDescription, "Vehicle's Description"))
-      return false;
-    if (!Boolean(seatingCapacity)) {
-      showToast(
-        'error',
-        'Validation Error',
-        "Please select Vehicle's Seating Capacity!",
-      );
+    if (isStringNullBlank(vehicleDescription, "Vehicle's Description")) return false;
+    if (!seatingCapacity) {
+      showToast('error', 'Validation Error', "Please select Vehicle's Seating Capacity!");
       return false;
     }
-    if (!Boolean(luggageCapacity)) {
-      showToast(
-        'error',
-        'Validation Error',
-        "Please select Vehicle's Luggage Capacity!",
-      );
+    if (!luggageCapacity) {
+      showToast('error', 'Validation Error', "Please select Vehicle's Luggage Capacity!");
       return false;
     }
     if (isStringNullBlank(maxPorwer, "Vehicle's Max Power")) return false;
-    if (isStringNullBlank(fuelCostAverage, "Vehicle's Fuel Cost Average"))
-      return false;
+    if (isStringNullBlank(fuelCostAverage, "Vehicle's Fuel Cost Average")) return false;
     if (isStringNullBlank(maxSpeed, "Vehicle's Max Speed")) return false;
-    if (
-      isStringNullBlank(zeroToSixtySpeedTime, "Vehicle's zero-Sixty Speed Time")
-    )
-      return false;
-
+    if (isStringNullBlank(zeroToSixtySpeedTime, "Vehicle's zero-Sixty Speed Time")) return false;
     if (isStringNullBlank(rcNumber, "Vehicle's RC")) return false;
     if (isStringNullBlank(pucNumber, "Vehicle's PUC")) return false;
-    if (isStringNullBlank(insuranceNumber, "Vehicle's Insurance Number"))
-      return false;
-    if (isStringNullBlank(permitNumber, "Vehicle's Permit Number"))
-      return false;
-
-    // if (isStringNullBlank(dailyRate, "Vehicle's Daily Rate")) return false;
-    // if (isStringNullBlank(monthlyRate, "Vehicle's Monthly Rate")) return false;
+    if (isStringNullBlank(insuranceNumber, "Vehicle's Insurance Number")) return false;
+    if (isStringNullBlank(permitNumber, "Vehicle's Permit Number")) return false;
     if (vehicleImages?.length < 3) {
-      showToast(
-        'error',
-        'Validation Error',
-        'Please select atleast 3 images of vehicle!',
-      );
+      showToast('error', 'Validation Error', 'Please select at least 3 images of vehicle!');
       return false;
     }
-
     return true;
   };
 
@@ -285,8 +249,9 @@ const AddVehicle = () => {
     if (!validateFields()) return;
     await addVehicle();
   };
+
   const addVehicle = async () => {
-    setLoading(true); 
+    setLoading(true);
     try {
       const response = await axios({
         url: `${BASE_URL}${ADD_VEHICLE.url}`,
@@ -302,8 +267,6 @@ const AddVehicle = () => {
             imgUrl: vehicleImages[0],
             seatingCapacity: seatingCapacity,
             luggageCapacity: luggageCapacity,
-            // dailyRate: '10',
-            // monthlyRate: '3000',
             maxpower: maxPorwer,
             fuelCostAverage: fuelCostAverage,
             maxSpeed: maxSpeed,
@@ -312,8 +275,8 @@ const AddVehicle = () => {
             availability: 'Available',
             vehicleNo: vehicleNumber,
             location: {
-              type: 'Point', 
-              coordinates: [26.71,81.43],
+              type: 'Point',
+              coordinates: [26.71, 81.43],
             },
             puc: pucNumber,
             vehicleRegistrationNo: rcNumber,
@@ -330,32 +293,32 @@ const AddVehicle = () => {
       if (response.status === 201 && response?.data?.data) {
         navigation.reset({
           index: 0,
-          routes: [{ name: 'BottomTab' }],
+          routes: [{name: 'BottomTab'}],
         });
-        showToast(
-          'success',
-          '🎉 Congratulations',
-          'Vehicle Added successfully.',
-        );
-      }
-      else {
-        setLoading(false)
+        showToast('success', '🎉 Congratulations', 'Vehicle Added successfully.');
+      } else {
+        setLoading(false);
         const errorMessage = response?.data?.msg;
         showToast('error', 'Signup Error', errorMessage);
       }
     } catch (error) {
       setLoading(false);
       console.log('error api for add vehicle ->', error.response?.data);
-      const errorMessage =
-        error?.response?.data?.message ||
-        'Network error. Please check your connection';
+      const errorMessage = error?.response?.data?.message || 'Network error. Please check your connection';
       showToast('error', 'Vehicle Adding Error', errorMessage);
     }
   };
 
+  const renderSectionHeader = (title, icon) => (
+    <View style={styles.sectionHeader}>
+      <MaterialCommunityIcons name={icon} size={22} color={COLORS.Amber} />
+      <Text style={styles.sectionTitle}>{title}</Text>
+    </View>
+  );
+
   return (
     <Container
-      statusBarStyle={'dark-content'}
+      statusBarStyle="dark-content"
       statusBarBackgroundColor={COLORS.white}
       backgroundColor={COLORS.white}>
       <AppBar back title="Add New Vehicle" />
@@ -364,253 +327,232 @@ const AddVehicle = () => {
           <ActivityIndicator size={scale(40)} color={COLORS.Amber} />
         </View>
       ) : (
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.container}>
-            <Text style={styles.uploadText}>Vehicle's Details</Text>
-            <Text style={[styles.label]}>Vehicle Type</Text>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
+          {/* Basic Info Card */}
+          <View style={styles.card}>
+            {renderSectionHeader('Basic Information', 'car-info')}
+            
             <ElementDropdown
               data={vehicleTypeData}
               value={vehicleType}
-              onChange={item => {
-                setVehicleType(item.value);
-              }}
+              onChange={item => setVehicleType(item.value)}
               placeholder="Select Vehicle Type"
-              style={styles.inputBox}
+              style={styles.dropdown}
               valueField="value"
               labelField="name"
             />
 
             <CustomInputField
-              label={'Vehicle Brand'}
+              label="Vehicle Brand"
               value={vehicleBrand}
               onChangeText={setVehicleBrand}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Vehicle Brand Name (Ex. - Honda)'}
+              placeholder="e.g., Honda, Toyota"
+              leftIcon={<FontAwesome5 name="car" size={16} color={COLORS.gray} />}
             />
 
             <CustomInputField
-              label={'Vehicle Number'}
+              label="Vehicle Number"
               value={vehicleNumber}
               onChangeText={setVehicleNumber}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Vehicle Number (Ex. - AB12CD3456)'}
+              placeholder="AB12CD3456"
+              leftIcon={<MaterialCommunityIcons name="identifier" size={16} color={COLORS.gray} />}
             />
 
             <CustomInputField
-              label={'Vehicle Model'}
+              label="Vehicle Model"
               value={vehicleModel}
               onChangeText={setVehicleModel}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Please Enter Vehicle Model (Ex. - Civic ZX MT)'}
+              placeholder="e.g., Civic ZX MT"
+              leftIcon={<MaterialCommunityIcons name="car-model" size={16} color={COLORS.gray} />}
             />
 
-            <Text style={[styles.label]}>Fuel Type</Text>
             <ElementDropdown
               data={fuelTypes}
               value={vehicleFuelType}
-              onChange={item => {
-                setVehicleFuelType(item.value);
-              }}
+              onChange={item => setVehicleFuelType(item.value)}
               placeholder="Select Fuel Type"
-              style={styles.inputBox}
+              style={styles.dropdown}
               valueField="value"
               labelField="name"
             />
 
-            <Text style={[styles.label]}>Transmission Type</Text>
             <ElementDropdown
               data={vehicleTransmissionTypeData}
               value={vehicleTransmissionType}
-              onChange={item => {
-                setVehicleTransmissionType(item.value);
-              }}
+              onChange={item => setVehicleTransmissionType(item.value)}
               placeholder="Select Transmission Type"
-              style={styles.inputBox}
+              style={styles.dropdown}
               valueField="value"
               labelField="name"
             />
 
             <CustomInputField
-              label={'Vehicle Description'}
+              label="Description"
               value={vehicleDescription}
               onChangeText={setVehicleDescription}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Please Enter Vehicle Description'}
-              inputStyles={styles.descriptionInput}
-              multiline={true}
-              returnKeyType="default"
+              placeholder="Brief description of your vehicle"
+              multiline
+              inputStyles={styles.textArea}
+              leftIcon={<MaterialCommunityIcons name="text-short" size={16} color={COLORS.gray} />}
             />
+          </View>
 
-            <Text style={[styles.label]}>Seating Capacity</Text>
+          {/* Capacity & Performance Card */}
+          <View style={styles.card}>
+            {renderSectionHeader('Capacity & Performance', 'speedometer')}
+
             <ElementDropdown
               data={seatOptions}
               value={seatingCapacity}
-              onChange={item => {
-                setSeatingCapacity(item.value);
-              }}
-              placeholder="Select Seating Capacity"
-              style={styles.inputBox}
-              valueField="value"
-              labelField="name"
+              onChange={item => setSeatingCapacity(item.value)}
+              placeholder="Seating Capacity"
+              style={styles.dropdown}
             />
 
-            <Text style={[styles.label]}>Luggage Capacity</Text>
             <ElementDropdown
               data={luggageOptions}
               value={luggageCapacity}
-              onChange={item => {
-                setLuggageCapacity(item.value);
-              }}
-              placeholder="Select Luggage Capacity"
-              style={styles.inputBox}
-              valueField="value"
-              labelField="name"
+              onChange={item => setLuggageCapacity(item.value)}
+              placeholder="Luggage Capacity"
+              style={styles.dropdown}
             />
 
             <CustomInputField
-              label={'Maximum Power'}
+              label="Max Power (BHP)"
               value={maxPorwer}
               onChangeText={setMaxPorwer}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Vehicle Maximum Power'}
+              placeholder="e.g., 120 BHP"
+              keyboardType="numeric"
+              leftIcon={<MaterialCommunityIcons name="engine" size={16} color={COLORS.gray} />}
             />
 
             <CustomInputField
-              label={'Maximum Speed'}
+              label="Max Speed (km/h)"
               value={maxSpeed}
               onChangeText={setMaxSpeed}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Vehicle Maximum Speed'}
+              placeholder="e.g., 180 km/h"
+              keyboardType="numeric"
+              leftIcon={<MaterialCommunityIcons name="speedometer" size={16} color={COLORS.gray} />}
             />
 
             <CustomInputField
-              label={'Fuel Cost Average'}
+              label="Fuel Average (km/ltr)"
               value={fuelCostAverage}
               onChangeText={setFuelCostAverage}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Vehicle Fuel Cost Average (in km/ltr)'}
+              placeholder="e.g., 18 km/l"
+              keyboardType="numeric"
+              leftIcon={<MaterialCommunityIcons name="fuel" size={16} color={COLORS.gray} />}
             />
 
             <CustomInputField
-              label={'Zero To Sixty Speed in Time'}
+              label="0-60 km/h (seconds)"
               value={zeroToSixtySpeedTime}
               onChangeText={setZeroToSixtySpeedTime}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Vehicle Zero-Sixty Speed Time (in seconds)'}
+              placeholder="e.g., 8.5 sec"
+              keyboardType="numeric"
+              leftIcon={<MaterialCommunityIcons name="timer" size={16} color={COLORS.gray} />}
             />
+          </View>
 
-            <Text style={styles.uploadText}>Vehicle's Documents</Text>
+          {/* Documents Card */}
+          <View style={styles.card}>
+            {renderSectionHeader('Documents', 'file-document')}
 
             <CustomInputField
-              label={'Registration Number (RC)'}
+              label="RC Number"
               value={rcNumber}
               onChangeText={setRcNumber}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Vehicle Registration Number'}
-            />
-            <CustomInputField
-              label={'Pollution Under Control Number (PUC)'}
-              value={pucNumber}
-              onChangeText={setPucNumber}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Vehicle PUC Number'}
-            />
-            <CustomInputField
-              label={'Insurance Number'}
-              value={insuranceNumber}
-              onChangeText={setInsuranceNumber}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Vehicle Insurance Number'}
-            />
-            <CustomInputField
-              label={'Permit Number'}
-              value={permitNumber}
-              onChangeText={setPermitNumber}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Vehicle Permit Number'}
+              placeholder="Registration Certificate Number"
+              leftIcon={<MaterialCommunityIcons name="card-bulleted" size={16} color={COLORS.gray} />}
             />
 
-            <Text style={styles.uploadText}>Vehicle's Images</Text>
+            <CustomInputField
+              label="PUC Number"
+              value={pucNumber}
+              onChangeText={setPucNumber}
+              placeholder="Pollution Under Control Number"
+              leftIcon={<MaterialCommunityIcons name="leaf" size={16} color={COLORS.gray} />}
+            />
+
+            <CustomInputField
+              label="Insurance Number"
+              value={insuranceNumber}
+              onChangeText={setInsuranceNumber}
+              placeholder="Insurance Policy Number"
+              leftIcon={<MaterialCommunityIcons name="shield-check" size={16} color={COLORS.gray} />}
+            />
+
+            <CustomInputField
+              label="Permit Number"
+              value={permitNumber}
+              onChangeText={setPermitNumber}
+              placeholder="Vehicle Permit Number"
+              leftIcon={<MaterialCommunityIcons name="file-check" size={16} color={COLORS.gray} />}
+            />
+          </View>
+
+          {/* Images Card */}
+          <View style={styles.card}>
+            {renderSectionHeader('Vehicle Images', 'image-multiple')}
+            <Text style={styles.helperText}>Upload at least 3 clear images of your vehicle (front, back, sides)</Text>
 
             <TouchableOpacity
               disabled={isUploading}
-              style={styles.imageContainer}
+              style={styles.uploadArea}
               onPress={toggleImagePickerModal}>
-              <View style={styles.placeholderContainer}>
+              <View style={styles.uploadContent}>
                 {isUploading ? (
-                  <ActivityIndicator size={scale(24)} color={COLORS.Amber} />
+                  <ActivityIndicator size={scale(32)} color={COLORS.Amber} />
                 ) : (
-                  <Image source={Icons.FileUpload} style={styles.uploadIcon} />
+                  <>
+                    <Icon name="cloud-upload" size={40} color={COLORS.Amber} />
+                    <Text style={styles.uploadText}>Tap to upload images</Text>
+                    <Text style={styles.uploadSubtext}>JPEG, PNG, JPG (max 6 images)</Text>
+                  </>
                 )}
-                {/* <Text style={styles.uploadText}>Upload</Text> */}
-
-                <View style={[styles.instructionRow]}>
-                  <Icon name="check-circle" size={20} color={COLORS.Amber} />
-                  <Text style={styles.subtitle}>
-                    Upload image files only(supports JPEG,PNG,JPG).
-                  </Text>
-                </View>
-                <View style={[styles.instructionRow]}>
-                  <Icon name="check-circle" size={20} color={COLORS.Amber} />
-                  <Text style={styles.subtitle}>
-                    Upload each side of images of your vehicle.
-                  </Text>
-                </View>
               </View>
             </TouchableOpacity>
+
             {renderUploadedImages()}
-
-            <PrimaryButton
-              buttonText="Continue"
-              style={styles.primaryButton}
-              onPress={handleSubmit}
-              disabled={isUploading}
-              loading={loading}
-            />
-
-            <Modal
-              isVisible={pickerModalVisible}
-              onBackdropPress={() => setPickerModalVisible(false)}
-              style={styles.modal}
-              backdropOpacity={0.5}
-              animationIn="slideInUp"
-              statusBarTranslucent
-              animationOut="slideOutDown">
-              <View style={styles.modalContent}>
-                <PrimaryButton
-                  buttonText="Open Camera"
-                  style={styles.modalButton}
-                  onPress={() => handleImageSelection(ImagePicker.openCamera)}
-                  disabled={isUploading}
-                />
-                <PrimaryButton
-                  buttonText="Open Gallery"
-                  style={styles.modalButton}
-                  onPress={() =>
-                    handleImageSelection(ImagePicker.openPicker, true)
-                  }
-                  disabled={isUploading}
-                />
-                <PrimaryButton
-                  buttonText="Cancel"
-                  style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => setPickerModalVisible(false)}
-                />
-              </View>
-            </Modal>
           </View>
+
+          {/* Submit Button */}
+          <PrimaryButton
+            buttonText="Continue"
+            style={styles.submitButton}
+            onPress={handleSubmit}
+            disabled={isUploading}
+            loading={loading}
+          />
+
+          {/* Image Picker Modal */}
+          <Modal
+            isVisible={pickerModalVisible}
+            onBackdropPress={() => setPickerModalVisible(false)}
+            style={styles.modal}
+            backdropOpacity={0.5}
+            animationIn="slideInUp"
+            animationOut="slideOutDown">
+            <View style={styles.modalContent}>
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={() => handleImageSelection(ImagePicker.openCamera)}>
+                <Icon name="camera-alt" size={24} color={COLORS.Amber} />
+                <Text style={styles.modalOptionText}>Open Camera</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={() => handleImageSelection(ImagePicker.openPicker, true)}>
+                <Icon name="photo-library" size={24} color={COLORS.Amber} />
+                <Text style={styles.modalOptionText}>Open Gallery</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalOption, styles.cancelOption]}
+                onPress={() => setPickerModalVisible(false)}>
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </Modal>
         </ScrollView>
       )}
     </Container>
@@ -620,41 +562,128 @@ const AddVehicle = () => {
 export default AddVehicle;
 
 const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: scale(15),
+  scrollContainer: {
+    paddingHorizontal: scale(16),
+    paddingBottom: verticalScale(30),
+    paddingTop: verticalScale(8),
   },
-  inputBox: {
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: moderateScale(24),
+    paddingVertical: verticalScale(16),
+    paddingHorizontal: scale(16),
+    marginBottom: verticalScale(16),
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: verticalScale(16),
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F2F5',
+    paddingBottom: verticalScale(10),
+  },
+  sectionTitle: {
+    fontSize: moderateScale(18),
+    fontFamily: Fonts.SemiBold,
+    color: '#1A2C3E',
+    marginLeft: scale(10),
+  },
+  dropdown: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: moderateScale(14),
     borderWidth: 1,
-    borderColor: COLORS.borderColor,
-    borderRadius: scale(5),
-    paddingHorizontal: scale(10),
-    paddingVertical: scale(8),
-    fontSize: scale(14),
-    color: COLORS.black,
-    fontFamily: Fonts.Regular,
-    marginBottom: scale(4),
+    borderColor: '#E5E7EB',
+    marginBottom: verticalScale(12),
+    paddingHorizontal: scale(14),
+    paddingVertical: Platform.OS === 'ios' ? verticalScale(12) : verticalScale(8),
   },
-  label: {
-    marginVertical: verticalScale(3),
-    color: COLORS.black,
-    fontFamily: Fonts.Medium,
-    fontSize: moderateScale(15),
-  },
-  descriptionInput: {
-    height: scale(80),
+  textArea: {
+    height: scale(90),
     textAlignVertical: 'top',
-    paddingTop: scale(6)
+    backgroundColor: '#F9FAFB',
+    borderRadius: moderateScale(14),
+    paddingHorizontal: scale(14),
+    paddingTop: verticalScale(12),
+    fontFamily: Fonts.Regular,
+    fontSize: moderateScale(14),
+    color: '#1F2937',
   },
-  pickerBtn: {
+  helperText: {
+    fontSize: moderateScale(12),
+    fontFamily: Fonts.Regular,
+    color: '#6C7A8E',
+    marginBottom: verticalScale(12),
+  },
+  uploadArea: {
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: COLORS.Amber,
+    borderRadius: moderateScale(20),
+    paddingVertical: verticalScale(24),
+    alignItems: 'center',
+    marginBottom: verticalScale(16),
+  },
+  uploadContent: {
+    alignItems: 'center',
+  },
+  uploadText: {
+    fontSize: moderateScale(15),
+    fontFamily: Fonts.Medium,
+    color: COLORS.Amber,
+    marginTop: verticalScale(8),
+  },
+  uploadSubtext: {
+    fontSize: moderateScale(11),
+    fontFamily: Fonts.Regular,
+    color: '#9CA3AF',
+    marginTop: verticalScale(4),
+  },
+  imagesPreviewContainer: {
+    marginTop: verticalScale(8),
+  },
+  sectionSubtitle: {
+    fontSize: moderateScale(14),
+    fontFamily: Fonts.Medium,
+    color: '#374151',
+    marginBottom: verticalScale(8),
+  },
+  imageScrollContent: {
+    paddingRight: scale(8),
+  },
+  imagePreviewWrapper: {
+    position: 'relative',
+    marginRight: scale(12),
+  },
+  imagePreview: {
+    width: scale(90),
+    height: scale(90),
+    borderRadius: moderateScale(16),
+    borderWidth: 2,
+    borderColor: COLORS.Amber,
+  },
+  removeImageButton: {
     position: 'absolute',
-    bottom: scale(0),
-    right: scale(0),
-    height: scale(24),
+    top: scale(6),
+    right: scale(6),
+    backgroundColor: COLORS.red,
+    borderRadius: scale(15),
     width: scale(24),
+    height: scale(24),
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.paleYellow,
-    borderRadius: scale(50),
+    borderWidth: 1,
+    borderColor: '#FFF',
+  },
+  submitButton: {
+    borderRadius: moderateScale(40),
+    marginTop: verticalScale(8),
+    marginBottom: verticalScale(12),
   },
   modal: {
     justifyContent: 'flex-end',
@@ -662,93 +691,38 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: COLORS.white,
-    padding: scale(20),
-    borderTopLeftRadius: scale(20),
-    borderTopRightRadius: scale(20),
+    borderTopLeftRadius: moderateScale(28),
+    borderTopRightRadius: moderateScale(28),
+    paddingVertical: verticalScale(20),
+    paddingHorizontal: scale(20),
   },
-  modalButton: {
-    marginBottom: scale(10),
-    borderRadius: moderateScale(30),
-  },
-  cancelButton: {
-    backgroundColor: COLORS.gray3,
-  },
-  imageContainer: {
-    width: '100%',
-    height: scale(150),
-    borderWidth: moderateScale(2),
-    borderStyle: 'dashed',
-    borderColor: COLORS.black,
-    borderRadius: moderateScale(10),
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: scale(20),
-  },
-  placeholderContainer: {
-    // alignItems: 'center',
-  },
-  uploadIcon: {
-    width: scale(40),
-    height: scale(40),
-    marginBottom: scale(10),
-    alignSelf: 'center',
-  },
-  uploadText: {
-    color: COLORS.themePrimary,
-    fontFamily: Fonts.Medium,
-    fontSize: moderateScale(16),
-    alignSelf: 'center',
-  },
-  instructionRow: {
+  modalOption: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: verticalScale(14),
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#E5E7EB',
   },
-  subtitle: {
-    fontSize: moderateScale(13),
-    color: COLORS.gray,
-    marginLeft: scale(10),
-    fontFamily: Fonts.Regular,
-  },
-  primaryButton: {
-    borderRadius: moderateScale(30),
-    marginTop: scale(20),
-    bottom: scale(15),
-  },
-  imagesPreviewContainer: {
-    marginBottom: scale(10),
-  },
-  uploadedImagesLabel: {
-    fontSize: moderateScale(14),
-    color: COLORS.black,
+  modalOptionText: {
+    fontSize: moderateScale(16),
     fontFamily: Fonts.Medium,
-    marginBottom: scale(5),
+    color: '#1F2937',
+    marginLeft: scale(16),
   },
-  imagePreviewWrapper: {
-    position: 'relative',
-    marginRight: scale(10),
-    zIndex: 9,
-  },
-  imagePreview: {
-    width: scale(100),
-    height: scale(100),
-    borderRadius: scale(5),
-    borderWidth: 1,
-    borderColor: COLORS.Amber,
-  },
-  removeImageButton: {
-    position: 'absolute',
-    top: scale(4),
-    right: scale(4),
-    backgroundColor: COLORS.red,
-    borderRadius: scale(10),
-    width: scale(20),
-    height: scale(20),
-    alignItems: 'center',
+  cancelOption: {
     justifyContent: 'center',
-    zIndex: 99,
+    borderBottomWidth: 0,
+    marginTop: verticalScale(8),
+  },
+  cancelText: {
+    fontSize: moderateScale(16),
+    fontFamily: Fonts.SemiBold,
+    color: COLORS.red,
+    textAlign: 'center',
+    flex: 1,
   },
   loaderBox: {
-    height: '100%',
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },

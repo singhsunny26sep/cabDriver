@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import {AppBar} from '../../components/AppBar/AppBar';
 import {Container} from '../../components/Container/Container';
@@ -14,40 +15,36 @@ import {COLORS} from '../../theme/Colors';
 import {Fonts} from '../../theme/Fonts';
 import {moderateScale, scale, verticalScale} from '../../utils/Scalling';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import CustomInput from '../../components/CustomTextInput/CustomInput';
+import Icon2 from 'react-native-vector-icons/Feather';
+import CustomInputField from '../../components/CustomTextInput/CustomInputField';
 import ElementDropdown from '../../components/ElementDropdown/ElementDropdown';
 import PrimaryButton from '../../components/Button/PrimaryButton';
 import {useNavigation} from '@react-navigation/native';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {CityData, GenderData} from '../../utils/StaticDataBase';
+import {GenderData} from '../../utils/StaticDataBase';
 import {
   loadUserLocalMethod,
   saveUserLocalMethod,
-  setUserData,
   updateUserData,
 } from '../../redux/slice/UserSlice';
 import axios from 'axios';
 import {GET_PROFILE, UPDATE_PROFILE} from '../../api/Endpoints';
 import {BASE_URL} from '../../api/BaseUrl';
-import Icon2 from 'react-native-vector-icons/Feather';
-import CustomInputField from '../../components/CustomTextInput/CustomInputField';
 import {
   isStringNullBlank,
-  isValidEmail,
   isValidNumeric,
 } from '../../utils/validations';
 import ImagePicker from 'react-native-image-crop-picker';
 import Modal from 'react-native-modal';
 import {CLOUDINARY_PRESET, CLOUDINARY_CLOUD_NAME} from '../../utils/contants';
 import {useDispatch} from 'react-redux';
+import {showToast} from '../../components/CustomToast/CustomToast';
 
-export default function YourProfile({}) {
-  const navigation = useNavigation('');
+export default function YourProfile() {
+  const navigation = useNavigation();
   const dispatch = useDispatch();
-  const genderData = ['Male', 'Female', 'Other'];
-  const [profileImage, setProfileImage] = useState(
-    'https://png.pngtree.com/png-vector/20231019/ourmid/pngtree-user-profile-avatar-png-image_10211467.png',
-  );
+
+  // State
+  const [profileImage, setProfileImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [userLocalData, setUserLocalData] = useState(null);
   const [riderId, setRiderId] = useState('');
@@ -58,109 +55,22 @@ export default function YourProfile({}) {
   const [statee, setStatee] = useState('');
   const [city, setCity] = useState('');
   const [locality, setLocality] = useState('');
-  const [pincode, setPincode] = useState(null);
+  const [pincode, setPincode] = useState('');
   const [licenseNum, setLicenseNum] = useState('');
   const [isEditable, setIsEditable] = useState(false);
-
-  const [imageUri, setImageUri] = useState('');
   const [pickerModalVisible, setPickerModalVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  // const openImagePicker = async () => {
-  //   const options = {
-  //     mediaType: 'photo',
-  //     quality: 1,
-  //   };
-
-  //   try {
-  //     const result = await launchImageLibrary(options);
-  //     if (result.assets && result.assets[0].uri) {
-  //       setProfileImage(result.assets[0].uri);
-  //     }
-  //   } catch (error) {
-  //     console.log('ImagePicker Error: ', error);
-  //   }
-  // };
-
-  const handleImageSelection = async pickerMethod => {
-    try {
-      const image = await pickerMethod({
-        width: 300,
-        height: 400,
-        cropping: true,
-        mediaType: 'photo',
-        includeBase64: true,
-      });
-
-      if (image.data) {
-        setPickerModalVisible(false);
-        await uploadImagesToCloudinary(image.data);
-      }
-    } catch (error) {
-      console.log('Image Error: ', error);
-      showToast('error', 'Image Error', 'Failed to select image');
-      setPickerModalVisible(false);
-    }
-  };
-
-  const uploadImagesToCloudinary = async base64Image => {
-    setIsUploading(true);
-
-    const formData = new FormData();
-    formData.append('file', `data:image/jpeg;base64,${base64Image}`);
-    formData.append('upload_preset', CLOUDINARY_PRESET);
-
-    try {
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
-      );
-
-      if (!response.ok) {
-        showToast(
-          'error',
-          'Image Upload Error',
-          'Server Issue, try after sometime',
-        );
-        return;
-      }
-      // console.log("Response for uploading--->",response);
-
-      const data = await response.json();
-      setImageUri(data.secure_url);
-    } catch (error) {
-      console.error('Upload error:', error);
-      showToast('error', 'Image Upload Failed', 'Please try again');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const toggleImagePickerModal = () => {
-    setPickerModalVisible(!pickerModalVisible);
-  };
-
+  // Helper functions
   const toggleEditable = () => setIsEditable(!isEditable);
 
-  const headerRight = () => {
-    return (
-      <TouchableOpacity
-        onPress={!isEditable ? toggleEditable : handleUpdateProfile}>
-        <Icon2
-          name={isEditable ? 'check' : 'edit'}
-          size={scale(20)}
-          color={COLORS.black}
-        />
-      </TouchableOpacity>
-    );
-  };
+  const headerRight = () => (
+    <TouchableOpacity onPress={!isEditable ? toggleEditable : handleUpdateProfile} style={styles.headerButton}>
+      <Icon2 name={isEditable ? 'check' : 'edit'} size={scale(20)} color={COLORS.Amber} />
+    </TouchableOpacity>
+  );
 
+  // Load local user data
   useEffect(() => {
     loadLocalData();
   }, []);
@@ -175,7 +85,6 @@ export default function YourProfile({}) {
     setLoading(true);
     const userData = await loadUserLocalMethod();
     setUserLocalData(userData);
-    // console.log('local data at Your Profile - ', userData);
     setLoading(false);
   };
 
@@ -187,137 +96,129 @@ export default function YourProfile({}) {
         url: `${BASE_URL}${GET_PROFILE.url}`,
         headers: {Authorization: `${userLocalData?.token}`},
       });
-
       if (response.status === 200 && response.data.success) {
-        console.log('response for fetch profile ->>>>>>', response);
         const profile = response.data.data;
-        setName(profile.name);
-        setEmail(profile.email);
-        setNumber(profile.contact);
-        setStatee(profile.state);
-        setCity(profile.city);
-        setLocality(profile.locality);
-        setPincode(profile.pincode?.toString());
-        setLicenseNum(profile.drivingLicenseNo);
-        setGender(profile.gender);
-        setRiderId(profile.riderId);
-        setImageUri(profile.profileImgUrl);
+        setName(profile.name || '');
+        setEmail(profile.email || '');
+        setNumber(profile.contact?.toString() || '');
+        setStatee(profile.state || '');
+        setCity(profile.city || '');
+        setLocality(profile.locality || '');
+        setPincode(profile.pincode?.toString() || '');
+        setLicenseNum(profile.drivingLicenseNo || '');
+        setGender(profile.gender || '');
+        setRiderId(profile.riderId || '');
+        setProfileImage(profile.profileImgUrl || null);
       }
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      console.log('error for getting profile -> ', error);
+      console.log('error getting profile:', error);
+      showToast('error', 'Error', 'Failed to load profile');
     }
   };
 
+  // Image handling
+  const handleImageSelection = async (pickerMethod) => {
+    try {
+      const image = await pickerMethod({
+        width: 500,
+        height: 500,
+        cropping: true,
+        mediaType: 'photo',
+        includeBase64: true,
+      });
+      if (image.data) {
+        setPickerModalVisible(false);
+        await uploadImageToCloudinary(image.data);
+      }
+    } catch (error) {
+      console.log('Image picker error:', error);
+      showToast('error', 'Image Error', 'Failed to select image');
+      setPickerModalVisible(false);
+    }
+  };
+
+  const uploadImageToCloudinary = async (base64Image) => {
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', `data:image/jpeg;base64,${base64Image}`);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: 'POST', body: formData, headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      if (!response.ok) throw new Error('Upload failed');
+      const data = await response.json();
+      setProfileImage(data.secure_url);
+      showToast('success', 'Success', 'Profile picture updated');
+    } catch (error) {
+      console.error('Upload error:', error);
+      showToast('error', 'Upload Failed', 'Please try again');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const toggleImagePickerModal = () => setPickerModalVisible(!pickerModalVisible);
+
+  // Update profile
   const handleUpdateProfile = async () => {
     if (isStringNullBlank(name, 'Name')) return;
-
     if (isStringNullBlank(number, 'Phone Number')) return;
     if (!isValidNumeric(number, 'Phone Number', true, 10)) return;
-
-    // Gender has some values, so no need to validation
-    // if (!Boolean(gender)) {
-    //   showToast('error', 'Validation Error', 'Please select gender!');
-    //   return;
-    // }
-
     if (isStringNullBlank(city, 'City')) return;
     if (isStringNullBlank(locality, 'Locality')) return;
-    if (isStringNullBlank(pincode, 'Pin-Code')) return;
-    if (!isValidNumeric(pincode, 'Pin-Code', false, 6)) return;
-    
+    if (isStringNullBlank(pincode, 'Pin Code')) return;
+    if (!isValidNumeric(pincode, 'Pin Code', false, 6)) return;
+
     setLoading(true);
-
     try {
-      //current form values
-      const currentFormValues = {
-        name,
-        email,
-        contact: number,
-        gender,
-        state: statee,
-        city,
-        locality,
-        pincode: pincode?.toString(),
-        drivingLicenseNo: licenseNum,
-        profileImgUrl: imageUri,
-      };
-
-      //the original values from userLocalData
-      const originalValues = {
-        name: userLocalData?.name,
-        email: userLocalData?.email,
-        contact: userLocalData?.contact,
-        gender: userLocalData?.gender,
-        state: userLocalData?.state,
-        city: userLocalData?.city,
-        locality: userLocalData?.locality,
-        pincode: userLocalData?.pincode?.toString(),
-        drivingLicenseNo: userLocalData?.drivingLicenseNo,
-        profileImgUrl: userLocalData?.profileImgUrl,
-      };
-
-      // Find changed fields
       const changedFields = {};
-      Object.keys(currentFormValues).forEach(key => {
-        if (currentFormValues[key] !== originalValues[key]) {
-          changedFields[key] = currentFormValues[key];
-        }
-      });
+      if (name !== userLocalData?.name) changedFields.name = name;
+      if (number !== userLocalData?.contact) changedFields.contact = number;
+      if (gender !== userLocalData?.gender) changedFields.gender = gender;
+      if (statee !== userLocalData?.state) changedFields.state = statee;
+      if (city !== userLocalData?.city) changedFields.city = city;
+      if (locality !== userLocalData?.locality) changedFields.locality = locality;
+      if (pincode?.toString() !== userLocalData?.pincode?.toString()) changedFields.pincode = pincode;
+      if (licenseNum !== userLocalData?.drivingLicenseNo) changedFields.drivingLicenseNo = licenseNum;
+      if (profileImage !== userLocalData?.profileImgUrl) changedFields.profileImgUrl = profileImage;
 
-      // If nothing changed, just toggle edit mode
       if (Object.keys(changedFields).length === 0) {
-      console.log('changed values 0- ', changedFields);
         toggleEditable();
         setLoading(false);
         return;
       }
-      console.log('changed values 1- ', changedFields);
-      console.log('url - ', `${BASE_URL}${UPDATE_PROFILE.url}`);
-      console.log('token - ', userLocalData?.token);
 
       const response = await axios({
         method: UPDATE_PROFILE.method,
         url: `${BASE_URL}${UPDATE_PROFILE.url}`,
-        headers: {Authorization: `${userLocalData?.token}`},
+        headers: { Authorization: `${userLocalData?.token}` },
         data: changedFields,
       });
-      console.log('changed values 2- ', changedFields);
-      console.warn('Response for update profile ->', response);
       setLoading(false);
-
-      if (response.status === 200 && response?.data?.success) {
-        const updatedUserData = {
-          ...userLocalData,
-          ...changedFields,
-        };
-
+      if (response.status === 200 && response.data?.success) {
+        const updatedUserData = { ...userLocalData, ...changedFields };
         dispatch(updateUserData(changedFields));
         await saveUserLocalMethod(updatedUserData);
         await getProfileData();
         toggleEditable();
-        showToast(
-          'success',
-          '✅Profile Updated',
-          'Your profile has been updated successfully',
-        );
+        showToast('success', '✅ Profile Updated', 'Your profile has been updated');
       } else {
-        const errorMessage = response?.data?.msg;
-        showToast('error', 'Profile Update Error', errorMessage);
+        showToast('error', 'Update Failed', response.data?.msg || 'Something went wrong');
       }
     } catch (error) {
-      // console.log("error -> ", error)
-      const errorMessage =
-        error?.response?.data?.message ||
-        'Network error. Please check your connection';
+      setLoading(false);
+      const errorMessage = error?.response?.data?.message || 'Network error';
       showToast('error', 'Profile Update Error', errorMessage);
     }
   };
 
   return (
     <Container
-      statusBarStyle={'dark-content'}
+      statusBarStyle="dark-content"
       statusBarBackgroundColor={COLORS.white}
       backgroundColor={COLORS.white}>
       <AppBar title="Your Profile" back right={headerRight()} />
@@ -326,190 +227,170 @@ export default function YourProfile({}) {
           <ActivityIndicator size={scale(40)} color={COLORS.Amber} />
         </View>
       ) : (
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={[styles.profileHeader, {borderBottomWidth: 0}]}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
+          {/* Profile Picture Card */}
+          <View style={styles.profileCard}>
             <View style={styles.profileImageContainer}>
               {isUploading ? (
-                <View style={styles.uploadingContainer}>
-                  <ActivityIndicator size="large" color={COLORS.themePrimary} />
+                <View style={styles.uploadingOverlay}>
+                  <ActivityIndicator size="large" color={COLORS.Amber} />
                 </View>
-              ) : imageUri ? (
-                <Image source={{uri: imageUri}} style={styles.profileImage} />
+              ) : profileImage ? (
+                <Image source={{ uri: profileImage }} style={styles.profileImage} />
               ) : (
                 <View style={styles.placeholderImage}>
-                  <Icon name="person" size={scale(40)} color={COLORS.grey} />
+                  <Icon name="person" size={scale(50)} color={COLORS.gray} />
                 </View>
               )}
               {isEditable && !isUploading && (
-                <TouchableOpacity
-                  style={styles.editIconContainer}
-                  onPress={toggleImagePickerModal}>
+                <TouchableOpacity style={styles.editIconContainer} onPress={toggleImagePickerModal}>
                   <Icon name="edit" size={16} color={COLORS.white} />
                 </TouchableOpacity>
               )}
             </View>
+            <Text style={styles.profileName}>{name || 'Your Name'}</Text>
+            <Text style={styles.profileLabel}>Rider ID: {riderId || 'Not assigned'}</Text>
           </View>
-          <View style={styles.container}>
+
+          {/* Form Card */}
+          <View style={styles.formCard}>
+            {/* Rider ID (non-editable) */}
             <CustomInputField
-              label={'Rider Id'}
+              label="Rider ID"
               value={riderId}
-              onChangeText={setRiderId}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Your Rider ID'}
               editable={false}
-              inputStyles={{
-                color: COLORS.gray4,
-                borderColor: COLORS.gray3,
-              }}
-            />
-            <CustomInputField
-              label={'Name'}
-              value={name}
-              onChangeText={setName}
-              keyboardType="default"
-              secureTextEntry={false}
-              placeholder={'Please Enter Your Name'}
-              editable={isEditable}
-              inputStyles={{
-                color: isEditable ? COLORS.black : COLORS.gray4,
-                borderColor: isEditable ? COLORS.borderColor : COLORS.gray3,
-              }}
-            />
-            <CustomInputField
-              label={'Email'}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              secureTextEntry={false}
-              placeholder={'Please Enter Your Email'}
-              editable={false}
-              inputStyles={{
-                color: COLORS.gray4,
-                borderColor: COLORS.gray3,
-              }}
-            />
-            <CustomInputField
-              label={'Contact Number'}
-              value={number}
-              onChangeText={setNumber}
-              keyboardType="number-pad"
-              secureTextEntry={false}
-              editable={isEditable}
-              placeholder={'Please Enter Your Contact Number'}
-              inputStyles={{
-                color: isEditable ? COLORS.black : COLORS.gray4,
-                borderColor: isEditable ? COLORS.borderColor : COLORS.gray3,
-              }}
+              placeholder="Your Rider ID"
+              inputStyles={styles.disabledInput}
             />
 
-            {!isEditable ? (
-              <CustomInputField
-                label={'Gender'}
-                value={gender}
-                onChangeText={setGender}
-                keyboardType="default"
-                secureTextEntry={false}
-                editable={isEditable}
-                placeholder={'Please Select Your Gender'}
-                inputStyles={{
-                  color: isEditable ? COLORS.black : COLORS.gray4,
-                  borderColor: isEditable ? COLORS.borderColor : COLORS.gray3,
-                }}
-              />
-            ) : (
+            {/* Name */}
+            <CustomInputField
+              label="Full Name"
+              value={name}
+              onChangeText={setName}
+              placeholder="Enter your full name"
+              editable={isEditable}
+              inputStyles={isEditable ? styles.editableInput : styles.disabledInput}
+            />
+
+            {/* Email (non-editable) */}
+            <CustomInputField
+              label="Email Address"
+              value={email}
+              editable={false}
+              placeholder="Your email"
+              inputStyles={styles.disabledInput}
+            />
+
+            {/* Phone */}
+            <CustomInputField
+              label="Phone Number"
+              value={number}
+              onChangeText={setNumber}
+              keyboardType="phone-pad"
+              placeholder="10-digit mobile number"
+              editable={isEditable}
+              inputStyles={isEditable ? styles.editableInput : styles.disabledInput}
+            />
+
+            {/* Gender - dropdown when editable, text when not */}
+            {isEditable ? (
               <>
-                <Text style={[styles.label]}>Gender</Text>
+                <Text style={styles.label}>Gender</Text>
                 <ElementDropdown
                   data={GenderData}
                   value={gender}
-                  onChange={item => {
-                    setGender(item.value);
-                  }}
+                  onChange={item => setGender(item.value)}
                   placeholder="Select Gender"
-                  style={styles.inputBox}
+                  style={styles.dropdown}
                   valueField="value"
                   labelField="name"
                 />
               </>
+            ) : (
+              <CustomInputField
+                label="Gender"
+                value={gender}
+                editable={false}
+                placeholder="Not specified"
+                inputStyles={styles.disabledInput}
+              />
             )}
 
+            {/* City */}
             <CustomInputField
-              label={'City'}
+              label="City"
               value={city}
               onChangeText={setCity}
-              keyboardType="default"
-              secureTextEntry={false}
+              placeholder="Your city"
               editable={isEditable}
-              placeholder={'Please Enter Your City'}
-              inputStyles={{
-                color: isEditable ? COLORS.black : COLORS.gray4,
-                borderColor: isEditable ? COLORS.borderColor : COLORS.gray3,
-              }}
+              inputStyles={isEditable ? styles.editableInput : styles.disabledInput}
             />
+
+            {/* Locality */}
             <CustomInputField
-              label={'Locality'}
+              label="Locality / Area"
               value={locality}
               onChangeText={setLocality}
-              keyboardType="default"
-              secureTextEntry={false}
+              placeholder="Street, colony, etc."
               editable={isEditable}
-              placeholder={'Please Enter Your Locality'}
-              inputStyles={{
-                color: isEditable ? COLORS.black : COLORS.gray4,
-                borderColor: isEditable ? COLORS.borderColor : COLORS.gray3,
-              }}
+              inputStyles={isEditable ? styles.editableInput : styles.disabledInput}
             />
+
+            {/* Pincode */}
             <CustomInputField
-              label={'Pin Code'}
+              label="Pincode"
               value={pincode}
               onChangeText={setPincode}
               keyboardType="number-pad"
-              secureTextEntry={false}
-              placeholder={'Please Enter Your Pin-Code'}
+              placeholder="6-digit pincode"
               editable={isEditable}
-              inputStyles={{
-                color: isEditable ? COLORS.black : COLORS.gray4,
-                borderColor: isEditable ? COLORS.borderColor : COLORS.gray3,
-              }}
+              inputStyles={isEditable ? styles.editableInput : styles.disabledInput}
             />
 
-            <Modal
-              isVisible={pickerModalVisible}
-              onBackdropPress={() => setPickerModalVisible(false)}
-              style={styles.modal}
-              backdropOpacity={0.5}
-              animationIn="slideInUp"
-              statusBarTranslucent
-              animationOut="slideOutDown">
-              <View style={styles.modalContent}>
-                <PrimaryButton
-                  buttonText="Open Camera"
-                  style={styles.modalButton}
-                  onPress={() => handleImageSelection(ImagePicker.openCamera)}
-                  disabled={isUploading}
-                />
-                <PrimaryButton
-                  buttonText="Open Gallery"
-                  style={styles.modalButton}
-                  onPress={() => handleImageSelection(ImagePicker.openPicker)}
-                  disabled={isUploading}
-                />
-                <PrimaryButton
-                  buttonText="Cancel"
-                  style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => setPickerModalVisible(false)}
-                />
-              </View>
-            </Modal>
+            {/* Driving License (optional) */}
+            <CustomInputField
+              label="Driving License Number (Optional)"
+              value={licenseNum}
+              onChangeText={setLicenseNum}
+              placeholder="Enter license number"
+              editable={isEditable}
+              inputStyles={isEditable ? styles.editableInput : styles.disabledInput}
+            />
           </View>
-          {/* {isEditable && (
-          <PrimaryButton
-            onPress={handleUpdateProfile}
-            buttonText="Update"
-            style={styles.primaryButton}
-          />
-        )} */}
+
+          {/* Update Button (only when editing) */}
+          {isEditable && (
+            <PrimaryButton
+              buttonText="Save Changes"
+              onPress={handleUpdateProfile}
+              style={styles.updateButton}
+              loading={loading}
+            />
+          )}
+
+          {/* Image Picker Modal */}
+          <Modal
+            isVisible={pickerModalVisible}
+            onBackdropPress={() => setPickerModalVisible(false)}
+            style={styles.modal}
+            backdropOpacity={0.5}
+            animationIn="slideInUp"
+            animationOut="slideOutDown">
+            <View style={styles.modalContent}>
+              <TouchableOpacity style={styles.modalOption} onPress={() => handleImageSelection(ImagePicker.openCamera)}>
+                <Icon name="photo-camera" size={24} color={COLORS.Amber} />
+                <Text style={styles.modalOptionText}>Take Photo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalOption} onPress={() => handleImageSelection(ImagePicker.openPicker)}>
+                <Icon name="photo-library" size={24} color={COLORS.Amber} />
+                <Text style={styles.modalOptionText}>Choose from Gallery</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.modalOption, styles.cancelOption]} onPress={() => setPickerModalVisible(false)}>
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </Modal>
         </ScrollView>
       )}
     </Container>
@@ -517,123 +398,160 @@ export default function YourProfile({}) {
 }
 
 const styles = StyleSheet.create({
-  profileHeader: {
-    alignItems: 'center',
-    paddingVertical: scale(10),
-    borderBottomWidth: 0.5,
-    borderBottomColor: COLORS.lightGrey,
+  scrollContainer: {
+    paddingHorizontal: scale(16),
+    paddingBottom: verticalScale(30),
   },
   loaderBox: {
-    height: '100%',
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  uploadingContainer: {
-    width: scale(80),
-    height: scale(80),
-    justifyContent: 'center',
+  profileCard: {
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: moderateScale(28),
+    paddingVertical: verticalScale(24),
+    marginTop: verticalScale(16),
+    marginBottom: verticalScale(20),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.05,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  profileImageContainer: {
+    position: 'relative',
+    marginBottom: verticalScale(12),
+  },
+  profileImage: {
+    width: scale(100),
+    height: scale(100),
+    borderRadius: scale(50),
+    borderWidth: 3,
+    borderColor: COLORS.Amber,
+    backgroundColor: '#F3F4F6',
   },
   placeholderImage: {
-    width: scale(80),
-    height: scale(80),
-    borderRadius: scale(100),
-    backgroundColor: 'transparent',
+    width: scale(100),
+    height: scale(100),
+    borderRadius: scale(50),
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.Amber,
+    borderStyle: 'dashed',
+  },
+  editIconContainer: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    backgroundColor: COLORS.Amber,
+    padding: scale(6),
+    borderRadius: scale(20),
+    borderWidth: 2,
+    borderColor: '#FFF',
+  },
+  uploadingOverlay: {
+    width: scale(100),
+    height: scale(100),
+    borderRadius: scale(50),
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  inputBox: {
-    borderWidth: 1,
-    borderColor: COLORS.borderColor,
-    borderRadius: scale(5),
-    paddingHorizontal: scale(10),
-    paddingVertical: scale(5),
-    fontSize: scale(14),
-    color: COLORS.black,
+  profileName: {
+    fontSize: moderateScale(20),
+    fontFamily: Fonts.SemiBold,
+    color: '#1A2C3E',
+    marginTop: verticalScale(4),
+  },
+  profileLabel: {
+    fontSize: moderateScale(13),
     fontFamily: Fonts.Regular,
-    height: scale(42),
-    marginBottom: scale(10),
+    color: '#6C7A8E',
+    marginTop: verticalScale(2),
+  },
+  formCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: moderateScale(24),
+    paddingVertical: verticalScale(16),
+    paddingHorizontal: scale(16),
+    marginBottom: verticalScale(20),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  label: {
+    fontSize: moderateScale(14),
+    fontFamily: Fonts.Medium,
+    color: '#374151',
+    marginBottom: verticalScale(6),
+    marginTop: verticalScale(8),
+  },
+  dropdown: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: moderateScale(14),
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginBottom: verticalScale(12),
+    paddingHorizontal: scale(14),
+    paddingVertical: Platform.OS === 'ios' ? verticalScale(12) : verticalScale(8),
+  },
+  editableInput: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E5E7EB',
+    color: '#1F2937',
+  },
+  disabledInput: {
+    backgroundColor: '#F9FAFB',
+    borderColor: '#F0F2F5',
+    color: '#9CA3AF',
+  },
+  updateButton: {
+    borderRadius: moderateScale(40),
+    marginBottom: verticalScale(20),
   },
   modal: {
     justifyContent: 'flex-end',
     margin: 0,
   },
   modalContent: {
-    backgroundColor: COLORS.white,
-    padding: scale(20),
-    borderTopLeftRadius: scale(20),
-    borderTopRightRadius: scale(20),
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: moderateScale(28),
+    borderTopRightRadius: moderateScale(28),
+    paddingVertical: verticalScale(20),
+    paddingHorizontal: scale(20),
   },
-  modalButton: {
-    marginBottom: scale(10),
-    borderRadius: moderateScale(30),
-  },
-  cancelButton: {
-    backgroundColor: COLORS.gray3,
-  },
-  profileImageContainer: {
-    position: 'relative',
-    marginBottom: scale(10),
-    borderRadius: scale(40),
-    borderWidth: 1,
-    borderColor: COLORS.Amber,
-  },
-  profileImage: {
-    width: scale(80),
-    height: scale(80),
-    borderRadius: scale(40),
-    backgroundColor: COLORS.lightGrey,
-  },
-  editIconContainer: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    backgroundColor: COLORS.primary,
-    padding: scale(5),
-    borderRadius: scale(12),
-  },
-  profileName: {
-    fontSize: moderateScale(18),
-    fontFamily: Fonts.Medium,
-    color: COLORS.black,
-    marginBottom: scale(4),
-  },
-  profileLabel: {
-    fontSize: moderateScale(14),
-    fontFamily: Fonts.Regular,
-    color: COLORS.grey,
-  },
-  container: {
-    marginHorizontal: scale(15),
-  },
-  documentButton: {
-    height: moderateScale(50),
-    borderWidth: 0.5,
-    borderRadius: moderateScale(10),
-    borderColor: '#B8B8B8',
+  modalOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: scale(15),
+    paddingVertical: verticalScale(14),
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#E5E7EB',
   },
-  documentButtonText: {
-    fontSize: moderateScale(14),
-    color: COLORS.gray3,
+  modalOptionText: {
+    fontSize: moderateScale(16),
     fontFamily: Fonts.Medium,
+    color: '#1F2937',
+    marginLeft: scale(16),
   },
-  label: {
-    marginVertical: verticalScale(3),
-    color: COLORS.black,
-    fontFamily: Fonts.Medium,
-    fontSize: moderateScale(15),
+  cancelOption: {
+    justifyContent: 'center',
+    borderBottomWidth: 0,
+    marginTop: verticalScale(8),
   },
-  marginTop: {
-    marginTop: scale(10),
+  cancelText: {
+    fontSize: moderateScale(16),
+    fontFamily: Fonts.SemiBold,
+    color: '#EF4444',
+    textAlign: 'center',
+    flex: 1,
   },
-  primaryButton: {
-    borderRadius: moderateScale(30),
-    marginHorizontal: scale(15),
-    marginTop: scale(20),
-    bottom: scale(15),
+  headerButton: {
+    padding: scale(8),
   },
 });

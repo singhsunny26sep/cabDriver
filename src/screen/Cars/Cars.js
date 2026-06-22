@@ -33,8 +33,8 @@ export default function Cars() {
     <View style={styles.card}>
       <View style={styles.cardContent}>
         <View style={styles.imageContainer}>
-          <Image 
-            source={{uri:'https://imgd.aeplcdn.com/600x337/n/cw/ec/44709/fortuner-exterior-right-front-three-quarter-20.jpeg?isig=0&q=80'}} 
+          <Image
+            source={{uri:'https://imgd.aeplcdn.com/600x337/n/cw/ec/44709/fortuner-exterior-right-front-three-quarter-20.jpeg?isig=0&q=80'}}
             style={styles.carImage}
             resizeMode="contain"
           />
@@ -44,10 +44,10 @@ export default function Cars() {
           <View style={styles.verificationBadge}>
             <Text style={styles.verificationText}>{item.status}</Text>
           </View>
-          
+
           <Text style={styles.carName}>{item.name}</Text>
           <Text style={styles.carType}>{item.type}</Text>
-          
+
           <View style={styles.detailsRow}>
             <View style={styles.detail}>
               <Icon name="account" size={20} color={COLORS.grey} />
@@ -78,7 +78,7 @@ export default function Cars() {
       statusBarBackgroundColor={COLORS.white}
       backgroundColor={COLORS.white}>
       <AppBar title="Cars" back />
-      
+
       <FlatList
         data={carsData}
         renderItem={renderCarItem}
@@ -176,14 +176,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     gap: 12,
-    marginTop:scale (5),
+    marginTop:scale(5),
   },
   editButton: {
     flex: 1,
-    paddingVertical:verticalScale (5),
+    paddingVertical:verticalScale(5),
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius:moderateScale (20),
+    borderRadius:moderateScale(20),
     borderWidth: 1,
     borderColor: COLORS.grey,
     backgroundColor: COLORS.whiteOpacity0,
@@ -191,10 +191,10 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     flex: 1,
-    paddingVertical:verticalScale (5),
+    paddingVertical:verticalScale(5),
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius:moderateScale (20),
+    borderRadius:moderateScale(20),
     backgroundColor: COLORS.gray4,
     minWidth: '45%',
     elevation: 2,
@@ -208,14 +208,14 @@ const styles = StyleSheet.create({
   },
   editButtonText: {
     color: COLORS.black,
-    fontSize:moderateScale (14),
+    fontSize:moderateScale(14),
     fontFamily:Fonts.Medium,
-    paddingTop:scale(3)
+    paddingTop:scale(3),
   },
   deleteButtonText: {
     color: COLORS.white,
-    fontSize:moderateScale (14),
+    fontSize:moderateScale(14),
     fontFamily:Fonts.Medium,
-    paddingTop:scale(3)
+    paddingTop:scale(3),
   },
 });

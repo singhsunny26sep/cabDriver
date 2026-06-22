@@ -255,7 +255,7 @@ export const useNotification = () => {
         isRidePopupVisible: value,
       }),
     );
-  }
+  };
 
   return {
     isPopupVisible,
@@ -267,6 +267,6 @@ export const useNotification = () => {
     playRingtone,
     stopRingtone,
     toggleRidePoup,
-    setPopupVisible
+    setPopupVisible,
   };
 };

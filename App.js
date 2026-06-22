@@ -15,17 +15,17 @@ export default function App() {
   useEffect(() => {
     let socketInitialized = false;
     crashlytics().log('App started with crash analytics.......');
-    
+
     const initApp = async () => {
       try {
         // Initialize notifications
         await initNotifications();
-        
+
         // Initialize socket when we have a token
         const userData = await loadUserLocalMethod();
-        
+
         if (userData?.token && !socketInitialized) {
-          console.log("Initializing socket with user token");
+          console.log('Initializing socket with user token');
           await socketServices.initializeSocket(userData.token);
           socketInitialized = true;
         }
@@ -37,20 +37,20 @@ export default function App() {
     const initNotifications = async () => {
       try {
         const hasPermission = await checkNotificationPermission();
-        
+
         if (!hasPermission) {
           const granted = await requestNotificationPermission();
           if (!granted) {
             showPermissionRationale();
           } else {
             const token = await getFCMToken();
-            console.log("FCM Token:", token);
+            console.log('FCM Token:', token);
           }
         } else {
           const token = await getFCMToken();
-          console.log("FCM Token:", token);
+          console.log('FCM Token:', token);
         }
-        
+
         await createNotificationChannel();
       } catch (error) {
         console.error('Notification initialization error:', error);

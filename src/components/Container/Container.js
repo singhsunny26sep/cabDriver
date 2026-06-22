@@ -8,9 +8,9 @@ export function Container(props) {
     backgroundColor = '#ffffff',
     fullScreen,
     statusBarBackgroundColor,
-    statusBarStyle = "dark-content",
+    statusBarStyle = 'dark-content',
   } = props;
-  
+
   const statusBarBackgroundColorIos = statusBarBackgroundColor;
   const screenBackgroundColor = backgroundColor;
 

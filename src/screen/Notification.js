@@ -76,12 +76,12 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(8),
   },
   dateText: {
-    fontSize:moderateScale (15),
+    fontSize:moderateScale(15),
     color:COLORS.gray,
     fontFamily:Fonts.Medium,
   },
   markAllRead: {
-    fontSize:moderateScale (15),
+    fontSize:moderateScale(15),
     color:COLORS.gray,
     fontFamily:Fonts.Medium,
   },
@@ -103,21 +103,21 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(4),
   },
   title: {
-    fontSize:moderateScale (15),
+    fontSize:moderateScale(15),
     color: '#000',
     fontFamily:Fonts.Medium,
     flex: 1,
   },
   time: {
-    fontSize:moderateScale (15),
+    fontSize:moderateScale(15),
     color: COLORS.gray,
     fontFamily:Fonts.Regular,
     marginLeft: moderateScale(8),
   },
   description: {
-    fontSize:moderateScale (13),
+    fontSize:moderateScale(13),
     color:COLORS.gray,
     fontFamily:COLORS.gray,
-    lineHeight:scale (18),
+    lineHeight:scale(18),
   },
 });

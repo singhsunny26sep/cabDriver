@@ -75,7 +75,7 @@ const OngoingRide = () => {
   }, []);
 
   useEffect(() => {
-    if (!userLocalData?._id || !userLocalData?.token) return;
+    if (!userLocalData?._id || !userLocalData?.token) {return;}
     initializeSocketAndStartTracking();
     return () => {
       socketServices?.removeListener('updateDriverLocation');
@@ -344,7 +344,7 @@ const OngoingRide = () => {
         <TouchableOpacity style={styles.LocationTargeticon} onPress={onCenter}>
           <Image source={Icons.LocationTarget} style={styles.TargetButton} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.chatIcon} onPress={()=>{navigation.navigate("ChatScreen", {bookingId: bookingItem?._id})}}>
+        <TouchableOpacity style={styles.chatIcon} onPress={()=>{navigation.navigate('ChatScreen', {bookingId: bookingItem?._id});}}>
           <Image source={Icons.Message} style={styles.TargetButton} />
         </TouchableOpacity>
       </View>

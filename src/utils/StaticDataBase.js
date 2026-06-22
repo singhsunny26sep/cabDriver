@@ -1,4 +1,4 @@
-import images from "../assets/Icons";
+import images from '../assets/Icons';
 
 export const GenderData = [
   { value: 'male', name: 'Male' },
@@ -121,7 +121,7 @@ export const transportOptions = [
       ride: {
         distance: '4.5 Mile',
         duration: '4 mins',
-        price: '$1.25',
+        price: '1.25',
         date: 'Oct 18, 2023',
         time: '08:00 AM',
         pickup: '6391 Elgin St. Celina, Delawa...',
@@ -149,7 +149,7 @@ export const transportOptions = [
         ride: {
           distance: '4.5 Mile',
           duration: '4 mins',
-          price: '$1.25',
+          price: '1.25',
           date: 'Oct 18, 2023',
           time: '08:00 AM',
           pickup: '6391 Elgin St. Celina, Delawa...',
@@ -177,7 +177,7 @@ export const transportOptions = [
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
       time: '1h',
       type: 'user',
-      date: 'TODAY'
+      date: 'TODAY',
     },
     {
       id: 2,
@@ -185,7 +185,7 @@ export const transportOptions = [
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
       time: '1h',
       type: 'user',
-      date: 'TODAY'
+      date: 'TODAY',
     },
     {
       id: 3,
@@ -193,7 +193,7 @@ export const transportOptions = [
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis',
       time: '1h',
       type: 'payment',
-      date: 'TODAY'
+      date: 'TODAY',
     },
     {
       id: 4,
@@ -201,7 +201,7 @@ export const transportOptions = [
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
       time: '1d',
       type: 'user',
-      date: 'YESTERDAY'
+      date: 'YESTERDAY',
     },
   ];
   export const driverCancelRideReasons = [
@@ -219,5 +219,5 @@ export const transportOptions = [
     { name: 'Shift ended', value: 'shift_ended' },
     { name: 'Heavy traffic at pickup', value: 'heavy_traffic' },
     { name: 'Police checkpoint', value: 'police_checkpoint' },
-    { name: 'Unsafe weather conditions', value: 'bad_weather' }
-  ]
+    { name: 'Unsafe weather conditions', value: 'bad_weather' },
+  ];

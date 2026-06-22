@@ -80,7 +80,7 @@ const TransportLists = ({route}) => {
   const confirmToggleStatus = (id, currentStatus) => {
   Alert.alert(
     'Confirm Status Change',
-    `Are you sure you want to ${currentStatus === "Active" ? "deactivate" : "activate"} this vehicle?`,
+    `Are you sure you want to ${currentStatus === 'Active' ? 'deactivate' : 'activate'} this vehicle?`,
     [
       {
         text: 'Cancel',
@@ -97,14 +97,14 @@ const TransportLists = ({route}) => {
   const toggleActiveStatus = async (id, currentStatus) => {
     setLoading(true);
     try {
-       const newStatus = currentStatus === "Active" ? "Inactive" : "Active";
+       const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
 
       const response = await axios({
         method: UPDATE_VEHICLE_STATUS.method,
         url: `${BASE_URL}${UPDATE_VEHICLE_STATUS.url}${id}`,
         data: {
           type: formattedTransportType,
-          status: newStatus
+          status: newStatus,
         },
         headers: {Authorization: `${userLocalData?.token}`},
       });
@@ -114,16 +114,16 @@ const TransportLists = ({route}) => {
       if (response.status === 200 && response.data.message) {
         getVehiclesData();
         // Update the specific vehicle's status in the vehicles array
-        setVehicles(prevVehicles => 
-          prevVehicles.map(vehicle => 
-            vehicle._id === id 
-              ? {...vehicle, status: newStatus} 
+        setVehicles(prevVehicles =>
+          prevVehicles.map(vehicle =>
+            vehicle._id === id
+              ? {...vehicle, status: newStatus}
               : vehicle
           )
         );
       }
       else{
-        showToast('error', 'Updation Error', "Something went wrong!");
+        showToast('error', 'Updation Error', 'Something went wrong!');
       }
     } catch (error) {
       setLoading(false);
@@ -184,9 +184,9 @@ const TransportLists = ({route}) => {
             </View>
           </View>
           <Switch
-            value={item.status === "Active"}
-            onValueChange={()=>{confirmToggleStatus(item._id, item.status)}}
-            thumbColor={item.status === "Active" ? '#DFE0E4' : '#ccc'}
+            value={item.status === 'Active'}
+            onValueChange={()=>{confirmToggleStatus(item._id, item.status);}}
+            thumbColor={item.status === 'Active' ? '#DFE0E4' : '#ccc'}
             trackColor={{false: COLORS.red, true: COLORS.green}}
           />
         </View>
@@ -273,7 +273,7 @@ const TransportLists = ({route}) => {
       statusBarStyle={'dark-content'}
       statusBarBackgroundColor={COLORS.white}
       backgroundColor={COLORS.white}>
-      <AppBar title={`Your Vehicle`} back />
+      <AppBar title={'Your Vehicle'} back />
       {loading ? (
         <View style={styles.loaderBox}>
           <ActivityIndicator size={scale(40)} color={COLORS.Amber} />

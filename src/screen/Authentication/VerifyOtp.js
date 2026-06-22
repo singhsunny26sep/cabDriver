@@ -76,25 +76,25 @@ const OtpVerify = ({}) => {
 };
 
 const styles = StyleSheet.create({
- 
+
   header: {
     alignItems: 'center',
-    marginBottom:scale (15),
+    marginBottom:scale(15),
   },
   title: {
-    fontSize:moderateScale (24),
+    fontSize:moderateScale(24),
     fontFamily:Fonts.ExtraBold,
     color:COLORS.black,
   },
   subTitle: {
-    fontSize:moderateScale (15),
+    fontSize:moderateScale(15),
     color:COLORS.gray,
-    fontFamily:Fonts.Regular
+    fontFamily:Fonts.Regular,
   },
   resendContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop:scale (40),
+    marginTop:scale(40),
     alignSelf: 'center',
   },
   resendText: {
@@ -105,12 +105,12 @@ const styles = StyleSheet.create({
   resendLink: {
     fontSize:moderateScale(15),
     color:COLORS.Amber,
-    fontFamily:Fonts.Medium
+    fontFamily:Fonts.Medium,
   },
   verifyButton: {
-    marginTop:scale (30),
-    paddingVertical:verticalScale (15),
-    borderRadius:moderateScale (8),
+    marginTop:scale(30),
+    paddingVertical:verticalScale(15),
+    borderRadius:moderateScale(8),
     alignItems: 'center',
     justifyContent: 'center',
   },

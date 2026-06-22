@@ -1,4 +1,4 @@
-import THEME from "./Theme";
-import { COLORS } from "./Colors";
+import THEME from './Theme';
+import { COLORS } from './Colors';
 
-export {COLORS,THEME,}
+export {COLORS,THEME};

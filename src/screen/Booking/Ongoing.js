@@ -87,7 +87,7 @@ export default function Ongoing({navigation}) {
   }, []);
 
   useEffect(() => {
-    if (!userLocalData?._id || !userLocalData?.token) return;
+    if (!userLocalData?._id || !userLocalData?.token) {return;}
     console.log('controller running --------------------');
 
     initializeSockets();
@@ -104,7 +104,7 @@ export default function Ongoing({navigation}) {
       console.log('controller running --------------------1');
 
       // await socketServices.initializeSocket(userLocalData.token);
-      
+
       console.log(
         'controller running --------------------2',
         socketServices.isConnected(),
@@ -155,7 +155,7 @@ export default function Ongoing({navigation}) {
 
     const eventName = `${typeValue}_booking`;
     socketServices.emit(eventName, {
-      type: "ongoing"
+      type: 'ongoing',
     });
 
     socketServices.on(`${typeValue}_booking_list`, data => {
@@ -181,12 +181,12 @@ export default function Ongoing({navigation}) {
   };
 
   const toggleOtpInput = bookingId => {
-    console.log("bookingId - " , bookingId)
-    console.log("otpInputId - " , otpInputId)
+    console.log('bookingId - ' , bookingId);
+    console.log('otpInputId - ' , otpInputId);
     setOtpInputId(otpInputId === bookingId ? null : bookingId);
     setOpenDropdownId(null); // Close cancel dropdown if open
   };
-  console.log("otpInputId ---- " , otpInputId)
+  console.log('otpInputId ---- ' , otpInputId);
 
   // const handleRejectRide = async bookingId => {
   //   try {
@@ -521,10 +521,10 @@ export default function Ongoing({navigation}) {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              console.log("otpInputId === item?._id && otp", otpInputId === item?._id)
-              console.log("otpInputId === item?._id && otp--", otpInputId, item?._id, otp)
+              console.log('otpInputId === item?._id && otp', otpInputId === item?._id);
+              console.log('otpInputId === item?._id && otp--', otpInputId, item?._id, otp);
               if (otpInputId === item?._id) {
-              console.log("otpInputId === item?._id && otp", otpInputId === item?._id)
+              console.log('otpInputId === item?._id && otp', otpInputId === item?._id);
                 handleAcceptRide(item?._id);
               } else {
                 toggleOtpInput(item?._id);

@@ -78,11 +78,11 @@ export default function SignIn() {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      if (isStringNullBlank(email, 'Email')) return;
-      if (!isValidEmail(email)) return;
+      if (isStringNullBlank(email, 'Email')) {return;}
+      if (!isValidEmail(email)) {return;}
 
-      if (isStringNullBlank(password, 'Password')) return;
-      if (!isValidPassword(password)) return;
+      if (isStringNullBlank(password, 'Password')) {return;}
+      if (!isValidPassword(password)) {return;}
 
       const response = await axios({
         method: SIGN_IN.method,
@@ -154,7 +154,7 @@ export default function SignIn() {
       statusBarStyle="dark-content"
       statusBarBackgroundColor={COLORS.white}
       backgroundColor={COLORS.white}>
-   
+
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{flex: 1}}>
@@ -254,7 +254,7 @@ export default function SignIn() {
             </Animated.View>
           </ScrollView>
         </KeyboardAvoidingView>
-     
+
     </Container>
   );
 }

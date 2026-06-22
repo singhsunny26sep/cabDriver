@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: scale(20),
-   
+
   },
   backButton: {
     width: scale(40),
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: verticalScale(30),
-    
+
   },
   profileCard: {
     backgroundColor: COLORS.white,

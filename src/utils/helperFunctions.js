@@ -60,7 +60,7 @@ export const requestLocationPermissions = async () => {
     if (Platform.OS === 'android') {
       // Request foreground permission first
       const foregroundStatus = await request(LOCATION_PERMISSIONS.android.foreground);
-      
+
       if (foregroundStatus !== RESULTS.GRANTED) {
         console.log('Foreground location permission denied');
         return false;
@@ -68,7 +68,7 @@ export const requestLocationPermissions = async () => {
 
       // Then request background permission
       const backgroundStatus = await request(LOCATION_PERMISSIONS.android.background);
-      
+
       if (backgroundStatus !== RESULTS.GRANTED) {
         console.log('Background location permission denied - app will work with foreground only');
         // We still return true because we have foreground permission
@@ -78,11 +78,11 @@ export const requestLocationPermissions = async () => {
     } else {
       // iOS - request when-in-use first
       const whenInUseStatus = await request(LOCATION_PERMISSIONS.ios);
-      
+
       if (whenInUseStatus === RESULTS.GRANTED) {
         // Then request always permission
         const alwaysStatus = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
-        
+
         if (alwaysStatus !== RESULTS.GRANTED) {
           console.log('Always location permission denied - app will work with when-in-use only');
         }
@@ -202,7 +202,7 @@ export const watchLocationContinuously = (onLocationChange, onError) => {
         if (onError) {
           onError(error);
         }
-        
+
         // Automatically stop watching on permission errors
         if (error.code === error.PERMISSION_DENIED) {
           stopWatchingLocation();
@@ -220,14 +220,14 @@ export const watchLocationContinuously = (onLocationChange, onError) => {
       }
     );
 
-    console.log("Location watching started with ID:", watchId);
+    console.log('Location watching started with ID:', watchId);
     resolve(true);
   });
 };
 
 export const stopWatchingLocation = () => {
   if (watchId !== null) {
-    console.log("Stopping location watch with ID:", watchId);
+    console.log('Stopping location watch with ID:', watchId);
     Geolocation.clearWatch(watchId);
     watchId = null;
   }
@@ -239,7 +239,7 @@ export const checkLocationPermissionStatus = async () => {
     if (Platform.OS === 'android') {
       const foregroundStatus = await check(LOCATION_PERMISSIONS.android.foreground);
       const backgroundStatus = await check(LOCATION_PERMISSIONS.android.background);
-      
+
       return {
         foreground: foregroundStatus,
         background: backgroundStatus,
@@ -247,7 +247,7 @@ export const checkLocationPermissionStatus = async () => {
     } else {
       const status = await check(LOCATION_PERMISSIONS.ios);
       const alwaysStatus = await check(PERMISSIONS.IOS.LOCATION_ALWAYS);
-      
+
       return {
         whenInUse: status,
         always: alwaysStatus,

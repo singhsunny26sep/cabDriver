@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
+import {loadUserLocalMethod} from '../redux/slice/UserSlice';
 import {scale, screenHeight} from '../utils/Scalling';
 import {COLORS} from '../theme/Colors';
 import Modal from 'react-native-modal';
@@ -72,7 +73,7 @@ const OngoingRideModals = ({
           cancelledBy: 'customer',
         },
       });
-      console.log("response  --->>>>", response)
+      console.log('response  --->>>>', response);
 
       if (response.status === 200 && response.data) {
         // socketServices.emit(`${activeTab}_booking`, {});
@@ -102,41 +103,43 @@ const OngoingRideModals = ({
       backdropTransitionOutTiming={500}>
       <View style={[styles.modalContent, {backgroundColor: COLORS?.white}]}>
         <View style={{padding: scale(15)}}>
-          {/* Customer basic details */}
-          <View style={[styles.row, {marginBottom: scale(10)}]}>
-            <Image
-              source={{uri: rideData?.clientInfo[0]?.imgUrl}}
-              style={styles.customerProfile}
-            />
-            <View style={styles.box}>
-              <Text
-                style={[styles.text, {fontSize: scale(16), fontWeight: '600'}]}>
-                {rideData?.clientInfo[0]?.name}
-              </Text>
-              <Text
-                style={[styles.text, {fontSize: scale(14), fontWeight: '500'}]}>
-                {rideData?.clientInfo[0]?.email}
-              </Text>
-              <View style={[styles.row, {marginTop: 5}]}>
-                <MaterialIcons
-                  name="star"
-                  size={16}
-                  color={COLORS?.themePrimary}
-                />
+{/* Customer basic details */}
+          {rideData?.clientInfo && rideData.clientInfo.length > 0 && (
+            <View style={[styles.row, {marginBottom: scale(10)}]}>
+              <Image
+                source={{uri: rideData.clientInfo[0]?.imgUrl}}
+                style={styles.customerProfile}
+              />
+              <View style={styles.box}>
                 <Text
-                  style={[
-                    styles.text,
-                    {
-                      marginLeft: scale(5),
-                      fontSize: scale(12),
-                      fontWeight: '500',
-                    },
-                  ]}>
-                  4.9 (25 reviews)
+                  style={[styles.text, {fontSize: scale(16), fontWeight: '600'}]}>
+                  {rideData.clientInfo[0]?.name}
                 </Text>
+                <Text
+                  style={[styles.text, {fontSize: scale(14), fontWeight: '500'}]}>
+                  {rideData.clientInfo[0]?.email}
+                </Text>
+                <View style={[styles.row, {marginTop: 5}]}>
+                  <MaterialIcons
+                    name="star"
+                    size={16}
+                    color={COLORS?.themePrimary}
+                  />
+                  <Text
+                    style={[
+                      styles.text,
+                      {
+                        marginLeft: scale(5),
+                        fontSize: scale(12),
+                        fontWeight: '500',
+                      },
+                    ]}>
+                    4.9 (25 reviews)
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
+          )}
 
           {/* Ride basic details */}
           <View
@@ -162,8 +165,8 @@ const OngoingRideModals = ({
                       fontWeight: '400',
                     },
                   ]}>
-                  📌 {remainingDistance?.toFixed(2)} km •{' '}
-                  {remainingDuration?.toFixed(2)} min
+📌 {remainingDistance != null ? remainingDistance.toFixed(2) : '--'} km •{' '}
+                   {remainingDuration != null ? remainingDuration.toFixed(2) : '--'} min
                 </Text>
               </View>
               <Text
@@ -321,7 +324,7 @@ const OngoingRideModals = ({
                 labelField="name"
               />
             </View>
-          ) : <View></View>}
+          ) : <View />}
         </View>
       </View>
     </Modal>

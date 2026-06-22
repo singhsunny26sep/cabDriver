@@ -60,7 +60,7 @@ export default function CompletedBookings({navigation}) {
   }, []);
 
   useEffect(() => {
-    if (!userLocalData?._id || !userLocalData?.token) return;
+    if (!userLocalData?._id || !userLocalData?.token) {return;}
 
     initializeSockets();
     handleTabChange(activeTab);

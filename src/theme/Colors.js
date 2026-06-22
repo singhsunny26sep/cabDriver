@@ -73,12 +73,11 @@ const COLORS = {
   emeraldGreen : '#43A048',
   firebrickRed : '#D32F2F',
   error: '#FF3B30',
-  Amber:"#4c32e1",
+  Amber:'#4c32e1',
   success: '#4CAF50',
   error: '#F44336',
   warning: '#FF9800',
-  transparent: "transparent"
+  transparent: 'transparent',
 };
-   
+
 export {COLORS};
-  

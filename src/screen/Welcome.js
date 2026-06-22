@@ -56,7 +56,7 @@ const Welcome = () => {
   const loadLocalData = async () => {
     const userData = await loadUserLocalMethod();
     const fcmToken = await getFCMToken();
-    console.log("local data at WELCOME - ", userData);
+    console.log('local data at WELCOME - ', userData);
     setFcmToken(fcmToken);
     setUserLocalData(userData);
   };
@@ -124,9 +124,9 @@ const Welcome = () => {
 
   const handleSubmit = async () => {
     // navigation.navigate('BottomTab')
-    if (isStringNullBlank(imageUri, 'Profile Image')) return;
+    if (isStringNullBlank(imageUri, 'Profile Image')) {return;}
 
-    if (isStringNullBlank(licenseNum, 'Driving License Number')) return;
+    if (isStringNullBlank(licenseNum, 'Driving License Number')) {return;}
     // if (isValidLicense(licenseNum)) return;
 
     // if (isStringNullBlank(rcNumber, 'Vehicle Registration Number')) return;
@@ -161,10 +161,10 @@ const Welcome = () => {
       const response = await axios({
         method: SIGN_UP.method,
         url: `${BASE_URL}${SIGN_UP.url}`,
-        data
+        data,
       });
       setLoading(false);
-      console.warn("Response for signup -> ", response);
+      console.warn('Response for signup -> ', response);
       if (response.status === 200 && response?.data?.success) {
         dispatch(
           setUserData({
@@ -189,7 +189,7 @@ const Welcome = () => {
       }
       else {
         const errorMessage = response?.data?.msg;
-        showToast('error', 'Signup Error', errorMessage); 
+        showToast('error', 'Signup Error', errorMessage);
       }
     } catch (error) {
       // console.log("error -> ", error)

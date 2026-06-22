@@ -6,81 +6,107 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
+  Dimensions,
 } from 'react-native';
 import { COLORS } from '../theme/Colors';
 import { Fonts } from '../theme/Fonts';
-import { verticalScale,scale,moderateScale } from '../utils/Scalling';
-import MapView, {Marker, Polyline} from 'react-native-maps';
+import { verticalScale, scale, moderateScale } from '../utils/Scalling';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Container } from '../components/Container/Container';
 import { AppBar } from '../components/AppBar/AppBar';
 import { bookings } from '../utils/StaticDataBase';
 
-export default function Pre_BookedRide ({navigation}) {
+const { width } = Dimensions.get('window');
 
-  const renderBookingCard = ({item}) => {
+export default function Pre_BookedRide({ navigation }) {
+  const renderBookingCard = ({ item }) => {
     return (
-      <View style={styles.bookingCard}>
-        <View style={styles.riderSection}>
-          <View style={styles.avatarContainer}>
+      <View style={styles.card}>
+        {/* Header: Avatar + Info + Status */}
+        <View style={styles.cardHeader}>
+          <View style={styles.avatarWrapper}>
             {item.rider.avatar ? (
               <Image source={item.rider.avatar} style={styles.avatar} />
             ) : (
-              <View style={styles.avatarPlaceholder} />
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name="person" size={scale(32)} color={COLORS.themePrimary} />
+              </View>
             )}
+            <View style={styles.onlineBadge} />
           </View>
           <View style={styles.riderInfo}>
             <Text style={styles.riderName}>{item.rider.name}</Text>
-            <Text style={styles.riderCRN}>CRN: {item.rider.crn}</Text>
+            <Text style={styles.riderId}>CRN: {item.rider.crn}</Text>
+          </View>
+          <View style={styles.statusChip}>
+            <Text style={styles.statusText}>📅 Upcoming</Text>
           </View>
         </View>
 
-        <View style={styles.rideDetailsContainer}>
-          <View style={styles.rideStats}>
-            <View style={styles.statItem}>
-              <MaterialIcons name="directions-car" size={25} color={COLORS.gray4} />
-              <Text style={styles.statText}>{item.ride.distance}</Text>
-            </View>
-            <View style={styles.statItem}>
-              <MaterialIcons name="access-time" size={25} color={COLORS.gray4} />
-              <Text style={styles.statText}>{item.ride.duration}</Text>
-            </View>
-            <View style={styles.statItem}>
-              <MaterialIcons name="attach-money" size={25} color={COLORS.gray4} />
-              <Text style={styles.statText}>{item.ride.price}/mile</Text>
-            </View>
+        {/* Stats row */}
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <MaterialIcons name="directions-car" size={scale(20)} color={COLORS.themePrimary} />
+            <Text style={styles.statValue}>{item.ride.distance}</Text>
           </View>
-
-          <View style={styles.dateTimeContainer}>
-            <Text style={styles.dateTime}>Date & Time</Text>
-            <Text style={styles.dateTimeValue}>
-              {`${item.ride.date} | ${item.ride.time}`}
+          <View style={styles.statItem}>
+            <MaterialIcons name="access-time" size={scale(20)} color={COLORS.themePrimary} />
+            <Text style={styles.statValue}>{item.ride.duration}</Text>
+          </View>
+          <View style={[styles.statItem, styles.priceStat]}>
+            <MaterialIcons name="attach-money" size={scale(20)} color={COLORS.white} />
+            <Text style={[styles.statValue, { color: COLORS.white }]}>
+              ₹{item.ride.price}/km
             </Text>
           </View>
+        </View>
 
-          <View style={styles.locationContainer}>
-            <View style={styles.locationItem}>
-              <MaterialIcons
-                name="trip-origin"
-                size={25}
-                color={COLORS.Amber}
-              />
-              <Text style={styles.locationText}>{item.ride.pickup}</Text>
+        {/* Date & Time */}
+        <View style={styles.dateTimeGroup}>
+          <Ionicons name="calendar-outline" size={scale(16)} color={COLORS.gray} />
+          <Text style={styles.dateTimeText}>{item.ride.date}</Text>
+          <View style={styles.dot} />
+          <Ionicons name="time-outline" size={scale(16)} color={COLORS.gray} />
+          <Text style={styles.dateTimeText}>{item.ride.time}</Text>
+        </View>
+
+        {/* Timeline: Pickup → Dropoff */}
+        <View style={styles.timeline}>
+          <View style={styles.timelineLeft}>
+            <View style={styles.pickupDot} />
+            <View style={styles.timelineLine} />
+            <View style={styles.dropoffDot} />
+          </View>
+          <View style={styles.timelineRight}>
+            <View style={styles.locationRow}>
+              <Text style={styles.locationLabel}>Pickup</Text>
+              <Text style={styles.locationAddress} numberOfLines={2}>{item.ride.pickup}</Text>
             </View>
-            <View style={styles.locationItem}>
-              <MaterialIcons
-                name="location-on"
-                size={25}
-                color={COLORS.Amber}
-              />
-              <Text style={styles.locationText}>{item.ride.dropoff}</Text>
+            <View style={styles.locationRow}>
+              <Text style={styles.locationLabel}>Dropoff</Text>
+              <Text style={styles.locationAddress} numberOfLines={2}>{item.ride.dropoff}</Text>
             </View>
           </View>
+        </View>
 
-          <View style={styles.carTypeContainer}>
-            <Text style={styles.carTypeLabel}>Booking Car Type</Text>
-            <Text style={styles.carTypeValue}>{item.ride.carType}</Text>
+        {/* Car type */}
+        <View style={styles.carTypeRow}>
+          <Ionicons name="car-sport-outline" size={scale(20)} color={COLORS.themePrimary} />
+          <Text style={styles.carTypeLabel}>Car Type</Text>
+          <View style={styles.carTypeBadge}>
+            <Text style={styles.carTypeText}>{item.ride.carType}</Text>
           </View>
+        </View>
+
+        {/* Action Buttons */}
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.cancelBtn} activeOpacity={0.7}>
+            <Text style={styles.cancelBtnText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.trackBtn} activeOpacity={0.7}>
+            <Text style={styles.trackBtnText}>Track Ride →</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -88,182 +114,286 @@ export default function Pre_BookedRide ({navigation}) {
 
   return (
     <Container
-      statusBarStyle={'dark-content'}
-      statusBarBackgroundColor={COLORS.white}
-      backgroundColor={COLORS.white}>
-        <AppBar back title='Pre - Booked'/>
+      statusBarStyle={'light-content'}
+      statusBarBackgroundColor={COLORS.themePrimary}
+      backgroundColor={'#F8F9FC'}>
+      <View style={styles.header}>
+        <AppBar
+          back
+          title="Pre-Booked Rides"
+          titleStyle={styles.headerTitle}
+          backIconColor={COLORS.white}
+          containerStyle={styles.appBar}
+        />
+      </View>
       <FlatList
         data={bookings}
         renderItem={renderBookingCard}
         keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
       />
     </Container>
   );
-};
-
+}
 
 const styles = StyleSheet.create({
-  listContainer: {
-    padding: scale(16),
+  header: {
+    backgroundColor: COLORS.themePrimary,
+    borderBottomLeftRadius: moderateScale(28),
+    borderBottomRightRadius: moderateScale(28),
+    paddingBottom: verticalScale(8),
+    shadowColor: COLORS.themePrimary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
   },
-  bookingCard: {
+  appBar: {
+    backgroundColor: 'transparent',
+  },
+  headerTitle: {
+    color: COLORS.white,
+    fontFamily: Fonts.Bold,
+    fontSize: moderateScale(20),
+  },
+  list: {
+    paddingHorizontal: scale(16),
+    paddingTop: verticalScale(16),
+    paddingBottom: verticalScale(24),
+  },
+  card: {
     backgroundColor: COLORS.white,
-    borderRadius: scale(12),
-    padding: scale(16),
-    marginBottom: scale(16),
+    borderRadius: moderateScale(28),
+    marginBottom: scale(18),
+    padding: scale(18),
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: COLORS.gray2 + '30',
   },
-  riderSection: {
+  cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: scale(16),
-    borderBottomWidth:0.7,
-    paddingBottom:scale(10),
-    borderBottomColor:COLORS.gray3
+    marginBottom: verticalScale(14),
   },
-  avatarContainer: {
+  avatarWrapper: {
+    position: 'relative',
     marginRight: scale(12),
   },
   avatar: {
-    width: scale(60),
-    height: scale(60),
-    borderRadius: scale(30),
+    width: scale(56),
+    height: scale(56),
+    borderRadius: scale(28),
+    borderWidth: 2,
+    borderColor: COLORS.themePrimary,
   },
   avatarPlaceholder: {
-    width: scale(60),
-    height: scale(60),
-    borderRadius: scale(30),
-    backgroundColor: '#E0E0E0',
+    width: scale(56),
+    height: scale(56),
+    borderRadius: scale(28),
+    backgroundColor: COLORS.gray1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.themePrimary,
+  },
+  onlineBadge: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: scale(14),
+    height: scale(14),
+    borderRadius: scale(7),
+    backgroundColor: '#4CD964',
+    borderWidth: 2,
+    borderColor: COLORS.white,
   },
   riderInfo: {
     flex: 1,
   },
   riderName: {
-    fontFamily: Fonts.Medium,
-    fontSize: moderateScale(16),
-    color:COLORS.black,
+    fontFamily: Fonts.Bold,
+    fontSize: moderateScale(17),
+    color: COLORS.black,
   },
-  riderCRN: {
+  riderId: {
     fontFamily: Fonts.Regular,
     fontSize: moderateScale(12),
     color: COLORS.gray,
+    marginTop: verticalScale(2),
   },
-  rideDetailsContainer: {
-    marginBottom: scale(16),
+  statusChip: {
+    backgroundColor: COLORS.themePrimary + '12',
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(5),
+    borderRadius: moderateScale(30),
   },
-  rideStats: {
+  statusText: {
+    fontFamily: Fonts.Medium,
+    fontSize: moderateScale(11),
+    color: COLORS.themePrimary,
+  },
+  statsRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
-    marginBottom: scale(16),
+    justifyContent: 'space-between',
+    marginBottom: verticalScale(16),
+    gap: scale(8),
   },
   statItem: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: scale(20),
+    justifyContent: 'center',
+    backgroundColor: '#F2F4F8',
+    paddingVertical: verticalScale(8),
+    borderRadius: moderateScale(40),
+    gap: scale(4),
   },
-  statText: {
-    marginLeft: scale(3),
-    fontFamily: Fonts.Regular,
-    fontSize: moderateScale(14),
-    color: COLORS.gray4,
-    paddingTop:scale(5)
+  priceStat: {
+    backgroundColor: COLORS.themePrimary,
   },
-  dateTimeContainer: {
+  statValue: {
+    fontFamily: Fonts.SemiBold,
+    fontSize: moderateScale(13),
+    color: COLORS.black,
+  },
+  dateTimeGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: scale(16),
-    borderBottomWidth:0.7,
-    paddingBottom:scale(10),
-    borderBottomColor:COLORS.gray3  },
-  dateTime: {
-    fontFamily: Fonts.Regular,
-    fontSize: moderateScale(14),
-    color: COLORS.gray4,
+    backgroundColor: '#F2F4F8',
+    alignSelf: 'flex-start',
+    paddingHorizontal: scale(14),
+    paddingVertical: verticalScale(6),
+    borderRadius: moderateScale(40),
+    marginBottom: verticalScale(16),
+    gap: scale(6),
   },
-  dateTimeValue: {
+  dot: {
+    width: scale(4),
+    height: scale(4),
+    borderRadius: scale(2),
+    backgroundColor: COLORS.gray,
+  },
+  dateTimeText: {
     fontFamily: Fonts.Medium,
-    fontSize: moderateScale(14),
+    fontSize: moderateScale(12),
     color: COLORS.black,
   },
-  locationContainer: {
-    marginBottom: scale(16),
-  },
-  locationItem: {
+  timeline: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: scale(8),
+    marginBottom: verticalScale(16),
   },
-  locationText: {
-    marginLeft: scale(8),
+  timelineLeft: {
+    width: scale(24),
+    alignItems: 'center',
+  },
+  pickupDot: {
+    width: scale(12),
+    height: scale(12),
+    borderRadius: scale(6),
+    backgroundColor: '#4CD964',
+    shadowColor: '#4CD964',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  timelineLine: {
+    width: 2,
+    height: scale(40),
+    backgroundColor: COLORS.gray2,
+    marginVertical: verticalScale(4),
+  },
+  dropoffDot: {
+    width: scale(12),
+    height: scale(12),
+    borderRadius: scale(6),
+    backgroundColor: '#FF3B30',
+    shadowColor: '#FF3B30',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  timelineRight: {
+    flex: 1,
+    paddingLeft: scale(8),
+  },
+  locationRow: {
+    marginBottom: verticalScale(8),
+  },
+  locationLabel: {
+    fontFamily: Fonts.Medium,
+    fontSize: moderateScale(12),
+    color: COLORS.gray,
+    marginBottom: verticalScale(2),
+  },
+  locationAddress: {
     fontFamily: Fonts.Regular,
-    fontSize: moderateScale(14),
+    fontSize: moderateScale(13),
     color: COLORS.black,
   },
-  carTypeContainer: {
+  carTypeRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: verticalScale(18),
+    paddingTop: verticalScale(8),
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray2 + '40',
   },
   carTypeLabel: {
     fontFamily: Fonts.Regular,
     fontSize: moderateScale(14),
-    color: COLORS.black,
-  },
-  carTypeValue: {
-    fontFamily: Fonts.Medium,
-    fontSize: moderateScale(14),
-    color: COLORS.black,
-  },
-  mapContainer: {
-    height: scale(150),
-    borderRadius: scale(8),
-    overflow: 'hidden',
-    marginBottom: scale(16),
-  },
-  map: {
-    flex: 1,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: COLORS.gray5,
-    padding: scale(12),
-    borderRadius: scale(8),
-    marginRight: scale(8),
-  },
-  trackButton: {
-    flex: 1,
-    backgroundColor: COLORS.gray,
-    padding: scale(12),
-    borderRadius: scale(8),
+    color: COLORS.gray,
     marginLeft: scale(8),
+    flex: 1,
   },
-  cancelButtonText: {
-    fontFamily: Fonts.Medium,
+  carTypeBadge: {
+    backgroundColor: COLORS.themePrimary + '10',
+    paddingHorizontal: scale(14),
+    paddingVertical: verticalScale(5),
+    borderRadius: moderateScale(30),
+  },
+  carTypeText: {
+    fontFamily: Fonts.SemiBold,
     fontSize: moderateScale(14),
-    color: COLORS.gray2,
-    textAlign: 'center',
-    paddingTop:scale(5)
+    color: COLORS.themePrimary,
   },
-  trackButtonText: {
-    fontFamily: Fonts.Medium,
+  buttonRow: {
+    flexDirection: 'row',
+    gap: scale(12),
+  },
+  cancelBtn: {
+    flex: 1,
+    backgroundColor: '#F2F4F8',
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(40),
+    alignItems: 'center',
+  },
+  cancelBtnText: {
+    fontFamily: Fonts.SemiBold,
+    fontSize: moderateScale(14),
+    color: COLORS.gray,
+  },
+  trackBtn: {
+    flex: 1,
+    backgroundColor: COLORS.themePrimary,
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(40),
+    alignItems: 'center',
+    shadowColor: COLORS.themePrimary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  trackBtnText: {
+    fontFamily: Fonts.SemiBold,
     fontSize: moderateScale(14),
     color: COLORS.white,
-    textAlign: 'center',
-    paddingTop:scale(5)
   },
 });
-

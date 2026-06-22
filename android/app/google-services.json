@@ -1,21 +1,40 @@
 {
   "project_info": {
-    "project_number": "941050392088",
-    "project_id": "riodrivedriver",
-    "storage_bucket": "riodrivedriver.firebasestorage.app"
+    "project_number": "969994681595",
+    "project_id": "dharamcabcustomer",
+    "storage_bucket": "dharamcabcustomer.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:941050392088:android:dfe3e9acd4f8ac9ae39d6d",
+        "mobilesdk_app_id": "1:969994681595:android:9a259b34e3c7548cb5845e",
         "android_client_info": {
-          "package_name": "com.adiyacabdriver"
+          "package_name": "com.dharamcab"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA8o4cdsvzLE4F-Ka799iKgv5uUO039Qbk"
+          "current_key": "AIzaSyBTs9bdf92h4DuAYZ5zTQJb3dP8j7og0ZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969994681595:android:4ca59cd69acb98deb5845e",
+        "android_client_info": {
+          "package_name": "com.dharamcabdriver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTs9bdf92h4DuAYZ5zTQJb3dP8j7og0ZQ"
         }
       ],
       "services": {

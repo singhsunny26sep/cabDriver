@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState, useCallback} from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -22,24 +22,24 @@ import MapView, {
   PROVIDER_GOOGLE,
   Circle,
 } from 'react-native-maps';
-import {Container} from '../components/Container/Container';
-import {COLORS} from '../theme/Colors';
+import { Container } from '../components/Container/Container';
+import { COLORS } from '../theme/Colors';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import {moderateScale, scale, verticalScale} from '../utils/Scalling';
-import {Fonts} from '../theme/Fonts';
+import { moderateScale, scale, verticalScale } from '../utils/Scalling';
+import { Fonts } from '../theme/Fonts';
+import Fontisto from 'react-native-vector-icons/Fontisto';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import Icons from '../assets/Icons';
 import MapViewDirections from 'react-native-maps-directions';
-// import Geolocation from '@react-native-community/geolocation';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {useFocusEffect} from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import images from '../assets/images';
-import {loadUserLocalMethod, setUserData} from '../redux/slice/UserSlice';
-import {UPDATE_RIDE_BOOKING} from '../api/Endpoints';
-import {BASE_URL} from '../api/BaseUrl';
+import { loadUserLocalMethod, setUserData } from '../redux/slice/UserSlice';
+import { UPDATE_RIDE_BOOKING } from '../api/Endpoints';
+import { BASE_URL } from '../api/BaseUrl';
 import axios from 'axios';
 import {
   requestLocationPermissions,
@@ -50,23 +50,22 @@ import {
 } from '../utils/helperFunctions';
 import socketServices from '../utils/socketServices';
 import debounce from '../utils/debounce';
-import {useNotification} from '../utils/notificationHook';
-import {useDispatch, useSelector} from 'react-redux';
-import {deviceHeight, deviceWidth} from '../utils/contants';
+import { useNotification } from '../utils/notificationHook';
+import { useDispatch, useSelector } from 'react-redux';
+import { deviceHeight, deviceWidth } from '../utils/contants';
 import OngoingRideModals from './OngoingRideModals';
 import DriverRatingModal from '../components/DriverRatingModal/DriverRatingModal';
 
-// const LATITUDE_DELTA = 0.0015;
-// const LONGITUDE_DELTA = 0.0015;
-const LATITUDE_DELTA = 0.003;
-const LONGITUDE_DELTA = 0.003;
+// Tighter zoom level for better driver view
+const LATITUDE_DELTA = 0.002;
+const LONGITUDE_DELTA = 0.002;
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
-export default function FindingJob({navigation}) {
+export default function FindingJob({ navigation }) {
   // Hooks
   const dispatch = useDispatch();
-  const {playRingtone, toggleRidePoup, setPopupVisible} = useNotification();
+  const { playRingtone, toggleRidePoup, setPopupVisible } = useNotification();
   const userData = useSelector(state => state.user);
 
   // States
@@ -80,9 +79,10 @@ export default function FindingJob({navigation}) {
   const [ongoingPickedRide, setOngoingPickedRide] = useState(null);
   const [remainingDistance, setRemainingDistance] = useState(null);
   const [remainingDuration, setRemainingDuration] = useState(null);
+  const [mapReady, setMapReady] = useState(false);
   const [state, setState] = useState({
-    curLoc: {latitude: 23.0225, longitude: 72.5714},
-    destinationCords: {latitude: 0, longitude: 0},
+    curLoc: { latitude: 23.0225, longitude: 72.5714 },
+    destinationCords: { latitude: 0, longitude: 0 },
     isLoading: false,
     coordinate: new AnimatedRegion({
       latitude: 23.0225,
@@ -95,6 +95,7 @@ export default function FindingJob({navigation}) {
   const [locationUpdateCount, setLocationUpdateCount] = useState(0);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [completedRideData, setCompletedRideData] = useState(null);
+  const [mapFocusKey, setMapFocusKey] = useState(0);
 
   // Refs
   const mapRef = useRef(null);
@@ -113,12 +114,12 @@ export default function FindingJob({navigation}) {
           setUserLocalData(userData);
         }
         await requestLocationPermission();
-        startLocationTracking(false); // Start tracking in offline mode initially
+        startLocationTracking(false);
       } catch (error) {
         console.error('Initialization error:', error);
       } finally {
         if (isMountedRef.current) {
-          setState(prev => ({...prev, isLoading: false}));
+          setState(prev => ({ ...prev, isLoading: false }));
         }
       }
     };
@@ -126,22 +127,15 @@ export default function FindingJob({navigation}) {
     initializeApp();
 
     return () => {
-      // isMountedRef.current = false;
-      // stopWatchingLocation(locationWatcherRef.current);
-      // if (isOnline) {
-      //   socketServices.disconnectSocket();
-      // }
-
-      //
       isMountedRef.current = false;
       stopLocationTracking();
       removeSocketListeners();
-      // Emit offline status when component unmounts if switch was on
       if (isOnline && socketServices.isConnected()) {
         socketServices.emit('offline_driver');
       }
     };
   }, []);
+
   // Handle online/offline state changes
   useEffect(() => {
     if (!userLocalData?._id || !userLocalData?.token) return;
@@ -151,6 +145,7 @@ export default function FindingJob({navigation}) {
       goOffline();
     }
   }, [isOnline, userLocalData]);
+
   const handleRideStatusChange = ride => {
     if (!ride) return;
     if (
@@ -158,14 +153,12 @@ export default function FindingJob({navigation}) {
       ride.rideStatus === 'rideNotPicked'
     ) {
       setOngoingPickedRide(ride);
-      // setShowOngoingRideModal(true);
       setCompletedRideData(null);
     } else if (
       ride.bookingStatus === 'ongoing' &&
       ride.rideStatus === 'ridePicked'
     ) {
       setOngoingPickedRide(ride);
-      // setShowOngoingRideModal(true);
       setCompletedRideData(null);
     } else if (ride.bookingStatus === 'completed') {
       setCompletedRideData(ride);
@@ -178,11 +171,11 @@ export default function FindingJob({navigation}) {
       setCompletedRideData(null);
     }
   };
-  // Setup socket listeners and location tracking when online
+
+  // Socket listeners
   useFocusEffect(
     useCallback(() => {
       if (!isOnline || !userLocalData?.token) return;
-      // Setup debounced location update
       debouncedLocationUpdateRef.current = debounce(location => {
         if (isOnline && socketServices.isConnected()) {
           console.log('sending location to server ===> ', location);
@@ -194,7 +187,7 @@ export default function FindingJob({navigation}) {
           setLocationUpdateCount(prev => prev + 1);
         }
       }, 1000);
-      // Setup ongoing ride listener
+
       const handleBookingList = onGoing_Booking => {
         if (!isMountedRef.current) return;
         if (onGoing_Booking?.data?.length > 0) {
@@ -217,7 +210,7 @@ export default function FindingJob({navigation}) {
                   bottom: deviceHeight / 4,
                 },
                 animated: true,
-              },
+              }
             );
           }
         } else {
@@ -225,50 +218,61 @@ export default function FindingJob({navigation}) {
           setShowOngoingRideModal(false);
         }
       };
+
       socketServices.on('onGoing_Booking_List', handleBookingList);
       socketServices.on('driver_booking_response', handleBookingList);
-      // Request ongoing rides when coming online
       socketServices.emit('onGoing_booking_driver', {});
+
       return () => {
-        socketServices.removeListener(
-          'onGoing_Booking_List',
-          handleBookingList,
-        );
-        socketServices.removeListener(
-          'driver_booking_response',
-          handleBookingList,
-        );
+        socketServices.removeListener('onGoing_Booking_List', handleBookingList);
+        socketServices.removeListener('driver_booking_response', handleBookingList);
       };
-    }, [isOnline, state.curLoc, ongoingPickedRide]),
+    }, [isOnline, state.curLoc, ongoingPickedRide])
   );
+
+  // KEY FIX: Re-center map every time the screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      setMapReady(false);
+      setMapFocusKey(prev => prev + 1);
+      const timer = setTimeout(() => {
+        if (mapRef.current && state.curLoc) {
+          if (!ongoingPickedRide) {
+            onCenter();
+          }
+        }
+      }, 800);
+      return () => {
+        clearTimeout(timer);
+        setMapReady(false);
+      };
+    }, [state.curLoc, ongoingPickedRide])
+  );
+
   const goOffline = () => {
-    // Emit offline status to server if socket is connected
     if (socketServices.isConnected()) {
       socketServices.emit('offline_driver');
     }
-
-    // Remove location update listener
     socketServices.removeListener('updateDriverLocation');
-    // Continue location tracking but without sending to server
     startLocationTracking(false);
-    // Reset ride state when going offline
     if (ongoingPickedRide) {
       setOngoingPickedRide(null);
       setShowOngoingRideModal(false);
     }
   };
+
   const startLocationTracking = (sendToServer = false) => {
     stopLocationTracking();
     locationWatcherRef.current = watchLocationContinuously(
       location => {
-        const {latitude, longitude, heading} = location;
+        const { latitude, longitude, heading } = location;
         if (heading !== undefined) {
           setHeading(heading);
         }
         if (isMountedRef.current) {
           setState(prev => ({
             ...prev,
-            curLoc: {latitude, longitude},
+            curLoc: { latitude, longitude },
             coordinate: new AnimatedRegion({
               latitude,
               longitude,
@@ -277,7 +281,7 @@ export default function FindingJob({navigation}) {
             }),
           }));
         }
-        if (mapRef.current) {
+        if (mapReady && mapRef.current) {
           mapRef.current.animateToRegion(
             {
               latitude,
@@ -285,26 +289,28 @@ export default function FindingJob({navigation}) {
               latitudeDelta: LATITUDE_DELTA,
               longitudeDelta: LONGITUDE_DELTA,
             },
-            1000,
+            1000
           );
         }
         if (sendToServer && debouncedLocationUpdateRef.current) {
-          debouncedLocationUpdateRef.current({latitude, longitude, heading});
+          debouncedLocationUpdateRef.current({ latitude, longitude, heading });
         }
       },
       error => {
         console.log('Location watch error:', error);
         handleLocationError(error);
       },
-      {enableHighAccuracy: true, distanceFilter: 10},
+      { enableHighAccuracy: true, distanceFilter: 10 }
     );
   };
+
   const stopLocationTracking = () => {
     if (locationWatcherRef.current) {
       stopWatchingLocation(locationWatcherRef.current);
       locationWatcherRef.current = null;
     }
   };
+
   const requestLocationPermission = async () => {
     try {
       const hasPermission = await requestLocationPermissions();
@@ -313,9 +319,9 @@ export default function FindingJob({navigation}) {
           'Location Permission Required',
           'Please enable location permissions to use this feature',
           [
-            {text: 'Cancel', style: 'cancel'},
-            {text: 'Open Settings', onPress: openLocationSettings},
-          ],
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Open Settings', onPress: openLocationSettings },
+          ]
         );
         return false;
       }
@@ -326,9 +332,9 @@ export default function FindingJob({navigation}) {
           'Location Services Disabled',
           'Please enable device location services to track your location',
           [
-            {text: 'Cancel', style: 'cancel'},
-            {text: 'Open Settings', onPress: openLocationSettings},
-          ],
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Open Settings', onPress: openLocationSettings },
+          ]
         );
         return false;
       }
@@ -339,15 +345,14 @@ export default function FindingJob({navigation}) {
       return false;
     }
   };
+
   const initializeSocketAndStartTracking = async () => {
     try {
       if (!socketServices.isConnected()) {
-        // await socketServices.initializeSocket(userLocalData.token);
         socketInitializedRef.current = true;
       }
-      // Emit online status to server with driver ID and current location
       socketServices.emit('online_driver', {});
-      startLocationTracking(true); // Start tracking with server updates
+      startLocationTracking(true);
     } catch (error) {
       console.error('Socket initialization failed:', error);
       Alert.alert('Connection Error', 'Failed to connect to server');
@@ -356,6 +361,7 @@ export default function FindingJob({navigation}) {
       }
     }
   };
+
   const removeSocketListeners = () => {
     try {
       socketServices.removeListener('onGoing_Booking_List');
@@ -365,6 +371,7 @@ export default function FindingJob({navigation}) {
       console.error('Error removing socket listeners:', error);
     }
   };
+
   const handleLocationError = error => {
     console.error('Location error:', error);
     if (error.code === 2 || error.code === 3) {
@@ -372,12 +379,13 @@ export default function FindingJob({navigation}) {
         'Location Error',
         'Unable to get your location. Please check your GPS and network connection.',
         [
-          {text: 'OK', onPress: () => startLocationTracking(isOnline)},
-          {text: 'Settings', onPress: openLocationSettings},
-        ],
+          { text: 'OK', onPress: () => startLocationTracking(isOnline) },
+          { text: 'Settings', onPress: openLocationSettings },
+        ]
       );
     }
   };
+
   const handleSwitchChange = async value => {
     if (value) {
       const hasPermission = await requestLocationPermission();
@@ -387,7 +395,6 @@ export default function FindingJob({navigation}) {
     }
     setIsOnline(value);
     setPopupVisible(value);
-    // Explicitly emit online/offline status based on switch
     if (value) {
       if (socketServices.isConnected()) {
         socketServices.emit('online_driver', {
@@ -401,6 +408,7 @@ export default function FindingJob({navigation}) {
       }
     }
   };
+
   const onCenter = () => {
     if (mapRef.current && state.curLoc) {
       mapRef.current.animateToRegion(
@@ -410,10 +418,11 @@ export default function FindingJob({navigation}) {
           latitudeDelta: LATITUDE_DELTA,
           longitudeDelta: LONGITUDE_DELTA,
         },
-        500,
+        500
       );
     }
   };
+
   const handleCompleteRide = async () => {
     if (!ongoingPickedRide?._id) return;
     try {
@@ -426,238 +435,34 @@ export default function FindingJob({navigation}) {
       console.error('Error completing ride:', error);
     }
   };
-  // Custom marker with rotation based on heading
+
   const renderCustomMarker = () => {
-    // console.log("coordinate of my location =========> ", state.coordinate, heading)
     return (
       <Marker.Animated
         ref={markerRef}
         coordinate={state.coordinate}
-        anchor={{x: 0.5, y: 0.5}}
+        anchor={{ x: 0.5, y: 0.5 }}
         flat={false}
         zIndex={1000}
         rotation={heading}>
         <View
           style={{
-            transform: [{rotate: `${heading}deg`}],
+            transform: [{ rotate: `${heading}deg` }],
             backgroundColor: COLORS.markerCircle,
             borderRadius: scale(100),
             padding: scale(30),
           }}>
-          <MaterialCommunityIcons
-            name="navigation"
-            size={scale(40)}
-            color={COLORS.themePrimary}
-          />
-          {/* <Feather name="navigation" size={scale(30)} color={COLORS.themePrimary} /> */}
-          {/* <Image
-            resizeMode="contain"
-            // source={Icons.navigation}
-            source={require("../assets/images/navigation.png")}
-            style={{
-              width: scale(50), // Increased from 30
-              height: scale(50), // Increased from 30
-              tintColor: COLORS.red, // Add color to make it more visible
-            }}
-          /> */}
+          <Fontisto name="car" size={scale(40)} color={COLORS.charcoalGray} />
         </View>
       </Marker.Animated>
     );
   };
 
-  // ============================
-
-  const loadLocalData = async () => {
-    try {
-      const userData = await loadUserLocalMethod();
-      console.log('load user data :---------', userData);
-      if (isMountedRef.current) {
-        setUserLocalData(userData);
-      }
-    } catch (error) {
-      console.error('Failed to load user data:', error);
-    } finally {
-      if (isMountedRef.current) {
-        setState(prev => ({...prev, isLoading: false}));
-      }
-    }
-  };
-
-  // const initializeSocketAndStartTracking = async () => {
-  //   try {
-  //     await socketServices.initializeSocket(
-  //       userLocalData.token
-  //     );
-  //     setSocketInitialized(true);
-  //     startLocationTracking(true); // Start tracking with socket updates
-  //   } catch (error) {
-  //     console.error('Socket initialization failed:', error);
-  //     Alert.alert('Connection Error', 'Failed to connect to server');
-  //     if (isMountedRef.current) {
-  //       setIsOnline(false); // Fall back to offline mode
-  //     }
-  //   }
-  // };
-  // const startLocationTracking = (sendToServer = false) => {
-  //   // Stop any existing watcher
-  //   if (locationWatcherRef.current) {
-  //     stopWatchingLocation(locationWatcherRef.current);
-  //   }
-
-  //   console.log("sendToServer", sendToServer)
-  //   console.log("isOnline", isOnline)
-  //   console.log("socketServices.isConnected()", socketServices.isConnected())
-  //   // Debounce server updates to prevent flooding
-  //   // const debouncedServerUpdate = debounce(location => {
-  //   //   if (isOnline) {
-  //   //     console.log("===============location getting ---------------", location)
-  //   //     socketServices.emit('updateDriverLocation', {
-  //   //       latitude: location.latitude,
-  //   //       longitude: location.longitude,
-  //   //       heading: location.heading,
-  //   //     });
-  //   //   }
-  //   // }, 1000);
-
-  //   locationWatcherRef.current = watchLocationContinuously(
-  //     location => {
-  //       const {latitude, longitude, heading} = location;
-
-  //       console.log("RAW LOCATION UPDATE:", location);
-  //       if (isOnline && socketServices.isConnected()) {
-  //         console.log("EMITTING LOCATION UPDATE::::::::::::", location);
-  //         socketServices.emit('updateDriverLocation', {
-  //           latitude: location.latitude,
-  //           longitude: location.longitude,
-  //           heading: location.heading,
-  //         });
-  //       //   socketServices.emit('onGoing_Booking_List', {});
-  //       //   socketServices.on('onGoing_Booking_List', (onGoing_Booking) => {
-  //       //     console.log('firstRide data=================>>>>',onGoing_Booking);
-  //       //     if (onGoing_Booking?.data && onGoing_Booking?.data?.length > 0) {
-  //       //       // Take the first ongoing ride
-  //       //       const firstRide = onGoing_Booking.data[0];
-  //       //     // setOngoingRide(firstRide);
-  //       //     // setShowOngoingRideModal(true);
-
-  //       //     // Update driver location if available
-  //       //     // if (firstRide.driverCurrentLatLong) {
-  //       //     //   // You might want to animate this update
-  //       //     // }
-  //       //   } else {
-  //       //     // setOngoingRide(null);
-  //       //     // setShowOngoingRideModal(false);
-  //       //   }
-  //       // });
-  //       }
-
-  //       if (heading) {
-  //         setHeading(heading);
-  //       }
-
-  //       // Update UI state
-  //       if (isMountedRef.current) {
-  //         setState(prev => ({
-  //           ...prev,
-  //           curLoc: {latitude, longitude},
-  //           coordinate: new AnimatedRegion({
-  //             latitude,
-  //             longitude,
-  //             latitudeDelta: LATITUDE_DELTA,
-  //             longitudeDelta: LONGITUDE_DELTA,
-  //           }),
-  //         }));
-  //       }
-
-  //       // Update map view
-  //       if (mapRef.current) {
-  //         mapRef.current.animateToRegion(
-  //           {
-  //             latitude,
-  //             longitude,
-  //             latitudeDelta: LATITUDE_DELTA,
-  //             longitudeDelta: LONGITUDE_DELTA,
-  //           },
-  //           1000,
-  //         );
-  //       }
-
-  //       // Send to server if online
-  //       // if (sendToServer) {
-  //       //   // debouncedServerUpdate({latitude, longitude, heading});
-  //       // }
-  //     },
-  //     error => {
-  //       console.log('Location watch error:', error);
-  //       handleLocationError(error);
-  //     },
-  //   );
-  // };
-  // const handleLocationError = error => {
-  //   if (error.code === 2) {
-  //     Alert.alert('Device Location Lost', 'Please enable location.', [
-  //       {text: 'Cancel', style: 'cancel'},
-  //       {
-  //         text: 'Open Settings',
-  //         onPress: () => {
-  //           Linking.sendIntent(
-  //             'android.settings.LOCATION_SOURCE_SETTINGS',
-  //           ).catch(() => {
-  //             Linking.openSettings();
-  //           });
-  //         },
-  //       },
-  //     ]);
-  //   }
-  // };
-  // const handleSwitchChange = async value => {
-
-  const animate = (latitude, longitude) => {
-    const newCoordinate = {latitude, longitude};
-    if (Platform.OS === 'android') {
-      if (markerRef.current) {
-        markerRef.current.animateMarkerToCoordinate(newCoordinate, 1000);
-      }
-    } else {
-      state.coordinate.timing(newCoordinate).start();
-    }
-  };
-
-  //   // First check location permissions when going online
-  //   if (value) {
-  //     const hasPermission = await requestLocationPermission();
-  //     if (!hasPermission) {
-  //       return; // Don't switch to online if no permission
-  //     }
-  //     setOngoingPickedRide(null);
-  //   }
-
-  //   setIsOnline(value);
-  //   // dispatch(setUserData({
-  //   //   ...userLocalData,
-  //   //   isRidePopupVisible: !userData?.userData?.isRidePopupVisible,
-  //   // }))
-  //   setPopupVisible(value);
-  //   // toggleRidePoup();
-  //   // setIsModalVisible(value);
-  // };
-
-  const handleAccept = () => {
-    setIsAccepted(true);
-  };
-
-  const handleBackPress = () => {
-    setIsAccepted(false);
-    setIsModalVisible(true);
-  };
-
   return (
     <Container
-      // fullScreen={true}
       statusBarStyle={'dark-content'}
       statusBarBackgroundColor={COLORS.transparent}>
       <View style={styles.container}>
-        {/* Redesigned Header with Status Card */}
         <SafeAreaView style={styles.headerSafeArea}>
           <View style={styles.headerContainer}>
             <View style={styles.userInfoSection}>
@@ -671,7 +476,12 @@ export default function FindingJob({navigation}) {
             </View>
             <View style={styles.statusCard}>
               <View style={styles.statusIndicator}>
-                <View style={[styles.statusDot, {backgroundColor: isOnline ? COLORS.success : COLORS.error}]} />
+                <View
+                  style={[
+                    styles.statusDot,
+                    { backgroundColor: isOnline ? COLORS.success : COLORS.error },
+                  ]}
+                />
                 <Text style={styles.statusText}>
                   {isOnline ? 'Online' : 'Offline'}
                 </Text>
@@ -679,7 +489,7 @@ export default function FindingJob({navigation}) {
               <Switch
                 value={isOnline}
                 onValueChange={handleSwitchChange}
-                trackColor={{false: COLORS.gray2, true: COLORS.gray2}}
+                trackColor={{ false: COLORS.gray2, true: COLORS.gray2 }}
                 thumbColor={isOnline ? COLORS.success : COLORS.gray3}
               />
             </View>
@@ -692,61 +502,35 @@ export default function FindingJob({navigation}) {
           </View>
         ) : (
           <MapView
-            style={{flex: 1}}
+            key={mapFocusKey}
+            style={{ flex: 1 }}
             ref={mapRef}
-            provider={
-              Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
-            }
-            // showsMyLocationButton={false}
+            provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
             showsUserLocation={false}
-            // apikey="AIzaSyD7u-bDQzuzqgRxHkT9fRd6xyMsRmtgLEY"
             initialRegion={{
               ...state.curLoc,
               latitudeDelta: LATITUDE_DELTA,
               longitudeDelta: LONGITUDE_DELTA,
+            }}
+            onMapReady={() => {
+              setMapReady(true);
+              // Force initial center
+              if (state.curLoc) {
+                onCenter();
+              }
             }}>
-            {/* <Marker.Animated ref={markerRef} coordinate={state.coordinate} /> */}
-
-            {/* Current Location Marker */}
             {renderCustomMarker()}
 
-            {/* Destination Marker */}
             {ongoingPickedRide?.destinationLocation && (
               <Marker
                 coordinate={{
                   latitude: ongoingPickedRide.destinationLocation.latitude,
                   longitude: ongoingPickedRide.destinationLocation.longitude,
                 }}>
-                <MaterialIcons
-                  name="location-on"
-                  size={scale(30)}
-                  color={COLORS.red}
-                />
+                <Fontisto name="car" size={scale(30)} color={COLORS.red} />
               </Marker>
             )}
 
-            {/* {Object.keys(state.destinationCords).length > 0 && (
-              <Marker
-                coordinate={state.destinationCords}
-                image={Icons.locationGreenMarker}
-              />
-            )}
-            {Object.keys(state.destinationCords).length > 0 && (
-              <MapViewDirections
-                origin={state.curLoc}
-                destination={state.destinationCords}
-                apikey="AIzaSyD7u-bDQzuzqgRxHkT9fRd6xyMsRmtgLEY"
-                strokeWidth={3}
-                optimizeWaypoints={true}
-                onReady={result => {
-                  mapRef?.current?.fitToCoordinates(result.coordinates, {
-                    edgePadding: {top: 50, left: 50, right: 50, bottom: 50},
-                  });
-                }}
-              />
-            )} */}
-
-            {/* Route between pickup and destination */}
             {ongoingPickedRide?.pickupLocation &&
               ongoingPickedRide?.destinationLocation && (
                 <MapViewDirections
@@ -765,7 +549,6 @@ export default function FindingJob({navigation}) {
                   onReady={result => {
                     setRemainingDistance(result?.distance);
                     setRemainingDuration(result?.duration);
-                    // Need to remove ??
                     if (
                       mapRef.current &&
                       result.coordinates &&
@@ -786,11 +569,10 @@ export default function FindingJob({navigation}) {
               )}
           </MapView>
         )}
-        
-        {/* Redesigned Stats Cards - Only when no ongoing ride */}
+
         {!ongoingPickedRide && (
           <View style={styles.statsContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.statCard}
               onPress={() => toggleRidePoup()}
               activeOpacity={0.8}>
@@ -815,11 +597,10 @@ export default function FindingJob({navigation}) {
           </View>
         )}
 
-        {/* Redesigned Action Buttons */}
         <TouchableOpacity
           style={[
             styles.centerButton,
-            {bottom: ongoingPickedRide ? 120 : 90},
+            { bottom: ongoingPickedRide ? 120 : 90 },
           ]}
           onPress={onCenter}>
           <View style={styles.centerButtonInner}>
@@ -844,7 +625,6 @@ export default function FindingJob({navigation}) {
           </>
         )}
 
-        {/* Ride Info Modal */}
         {ongoingPickedRide && (
           <OngoingRideModals
             visible={showOngoingRideModal}
@@ -857,16 +637,14 @@ export default function FindingJob({navigation}) {
           />
         )}
 
-        {/* Driver Rating Modal */}
         <DriverRatingModal
           visible={showRatingModal}
           onClose={() => {
             setShowRatingModal(false);
             setCompletedRideData(null);
           }}
-          rideData={{...completedRideData, token: userLocalData?.token}}
+          rideData={{ ...completedRideData, token: userLocalData?.token }}
           onSubmit={() => {
-            // Refresh data after rating submission
             if (isOnline && socketServices.isConnected()) {
               socketServices.emit('onGoing_booking_driver', {});
             }
@@ -928,7 +706,7 @@ const styles = StyleSheet.create({
     paddingVertical: scale(6),
     borderRadius: moderateScale(30),
     shadowColor: COLORS.black,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
@@ -964,7 +742,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: moderateScale(16),
     shadowColor: COLORS.black,
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
@@ -1011,7 +789,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: scale(40),
     shadowColor: COLORS.black,
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 6,
@@ -1043,7 +821,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: COLORS.black,
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 5,
@@ -1066,13 +844,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: COLORS.black,
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 5,
     zIndex: 10,
   },
-  // Keep old styles for compatibility but they might not be used
   map: {
     ...StyleSheet.absoluteFillObject,
   },
@@ -1089,7 +866,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(15),
     paddingVertical: scale(5),
     shadowColor: COLORS.black,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
     marginHorizontal: scale(5),
@@ -1102,8 +879,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: COLORS.white,
     paddingLeft: 10,
-    // borderBottomColor: COLORS.gray,
-    // borderBottomWidth: scale(1)
   },
   switchContainer: {
     flexDirection: 'row',
@@ -1264,12 +1039,9 @@ const styles = StyleSheet.create({
   preBookedAndEarningsContainer: {
     position: 'absolute',
     top: scale(70),
-    // marginHorizontal: scale(15),
     flexDirection: 'row',
     borderRadius: moderateScale(8),
     alignItems: 'center',
-    // width: '100%',
-    // alignSelf: 'center',
     left: scale(15),
     right: scale(15),
   },
@@ -1279,7 +1051,7 @@ const styles = StyleSheet.create({
     marginRight: scale(30),
     backgroundColor: COLORS.white,
     shadowColor: COLORS.black,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
@@ -1308,13 +1080,12 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(15),
     color: COLORS.black,
   },
-
   todayEarningsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.white,
     shadowColor: COLORS.black,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
@@ -1357,7 +1128,6 @@ const styles = StyleSheet.create({
   CompleteRideicon: {
     position: 'absolute',
     bottom: 10,
-    // right: 20,
     backgroundColor: COLORS.themePrimary,
     padding: 10,
     borderRadius: 10,

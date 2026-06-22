@@ -43,7 +43,7 @@ const ProfilePicture = ({navigation}) => {
   };
 
   const removeImage = (indexToRemove) => {
-    setSelectedImages(prevImages => 
+    setSelectedImages(prevImages =>
       prevImages.filter((_, index) => index !== indexToRemove)
     );
   };
@@ -53,8 +53,8 @@ const ProfilePicture = ({navigation}) => {
       statusBarStyle={'dark-content'}
       statusBarBackgroundColor={COLORS.white}
       backgroundColor={COLORS.white}>
-      <AppBar back title='Profile Picture'/>
-      <View style={styles.container}>        
+      <AppBar back title="Profile Picture"/>
+      <View style={styles.container}>
         <View style={styles.instructionRow}>
           <Icon name="check-circle" size={20} color={COLORS.Amber} />
           <Text style={styles.subtitle}>
@@ -91,12 +91,12 @@ const ProfilePicture = ({navigation}) => {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {selectedImages.map((uri, index) => (
               <View key={index} style={styles.imageWrapper}>
-                <Image 
-                  source={{ uri }} 
-                  style={styles.selectedImage} 
+                <Image
+                  source={{ uri }}
+                  style={styles.selectedImage}
                   resizeMode="cover"
                 />
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.removeButton}
                   onPress={() => removeImage(index)}
                 >
@@ -108,7 +108,7 @@ const ProfilePicture = ({navigation}) => {
         </View>
 
         <View style={styles.buttonContainer}>
-          <PrimaryButton buttonText='Done'/>
+          <PrimaryButton buttonText="Done"/>
         </View>
       </View>
     </Container>
@@ -118,14 +118,14 @@ const ProfilePicture = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginHorizontal: scale(15)
+    marginHorizontal: scale(15),
   },
   subtitle: {
     fontSize: moderateScale(16),
     color: COLORS.gray,
     flex: 1,
     marginLeft: scale(10),
-    fontFamily: Fonts.Regular
+    fontFamily: Fonts.Regular,
   },
   imageContainer: {
     width: '100%',
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   uploadText: {
     color: COLORS.black,
     fontFamily: Fonts.Medium,
-    fontSize: moderateScale(16)
+    fontSize: moderateScale(16),
   },
   instructionRow: {
     flexDirection: 'row',
@@ -162,12 +162,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   lastInstruction: {
-    marginBottom: scale(20)
+    marginBottom: scale(20),
   },
   buttonContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    paddingBottom: scale(20)
+    paddingBottom: scale(20),
   },
   selectedImagesContainer: {
     width: '100%',

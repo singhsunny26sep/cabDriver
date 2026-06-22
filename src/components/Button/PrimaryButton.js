@@ -10,7 +10,7 @@ const PrimaryButton = forwardRef((props, ref) => {
     loaderColor = 'white',
     loading = false,
     fontSize = 16,
-    textColor = "white",
+    textColor = 'white',
     style,
     ...restProps
   } = props;
@@ -37,12 +37,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 16
+    gap: 16,
   },
   buttonText: {
     fontFamily: 'Roboto-Medium',
     numberOfLines: 1,
-  }
+  },
 });
 
 export default PrimaryButton;

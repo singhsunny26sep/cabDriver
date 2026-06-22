@@ -1,11 +1,11 @@
-import { io } from "socket.io-client";
-import { BASE_URL } from "../../Api/Url";
+import { io } from 'socket.io-client';
+import { BASE_URL } from '../../Api/Url';
 
-const SOCKET_URL = "https://dharma-cab.onrender.com";
+const SOCKET_URL = 'https://dharma-cab.onrender.com';
 // const SOCKET_URL = "https://a36d-2401-4900-36ad-dc2b-9b6-567a-d954-f52f.ngrok-free.app";
 // const SOCKET_URL = "https://cabdriverserver-a3cdd048fc7c.herokuapp.com";
 
-class WSService { 
+class WSService {
   constructor() {
     this.socket = null;
   }
@@ -23,7 +23,7 @@ class WSService {
         secure: true,
         auth: {
           token: userToken,
-          type: "rider"
+          type: 'rider',
         },
         query: {
           token: userToken,
@@ -41,29 +41,29 @@ class WSService {
       console.log('👋 Initializing socket');
 
       // Setup event handlers
-      this.socket.on("connect", () => {
-        console.log("✅✅✅ Socket connected successfully! ✅✅✅", this.socket);
+      this.socket.on('connect', () => {
+        console.log('✅✅✅ Socket connected successfully! ✅✅✅', this.socket);
       });
 
-      this.socket.on("disconnect", () => {
-        console.log("=== socket disconnected ===");
+      this.socket.on('disconnect', () => {
+        console.log('=== socket disconnected ===');
       });
 
-      this.socket.on("connect_error", (error) => {
-        console.log("=== socket connection error ===", JSON.stringify(error));
+      this.socket.on('connect_error', (error) => {
+        console.log('=== socket connection error ===', JSON.stringify(error));
       });
 
       return this.socket;
 
     } catch (error) {
-      console.log("=== socket initialization error ===", error);
+      console.log('=== socket initialization error ===', error);
       throw error;
     }
-  }
+  };
 
   on(event, callback) {
     if (!this.socket) {
-      console.warn("Socket not initialized. Call initializeSocket first.");
+      console.warn('Socket not initialized. Call initializeSocket first.');
       return;
     }
     this.socket.on(event, callback);
@@ -71,7 +71,7 @@ class WSService {
 
   emit(event, data, callback) {
     if (!this.socket) {
-      console.warn("Socket not initialized. Call initializeSocket first.");
+      console.warn('Socket not initialized. Call initializeSocket first.');
       return;
     }
     this.socket.emit(event, data, callback);
@@ -79,7 +79,7 @@ class WSService {
 
   removeListener(event, listener) {
     if (!this.socket) {
-      console.warn("Socket not initialized. Call initializeSocket first.");
+      console.warn('Socket not initialized. Call initializeSocket first.');
       return;
     }
     this.socket?.off(event, listener);
@@ -89,13 +89,13 @@ class WSService {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
-      console.log("=== Socket manually disconnected ===");
+      console.log('=== Socket manually disconnected ===');
     }
-  }
+  };
 
   isConnected = () => {
     return this.socket?.connected;
-  }
+  };
 }
 
 const socketServices = new WSService();

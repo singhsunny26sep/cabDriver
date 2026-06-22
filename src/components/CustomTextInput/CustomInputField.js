@@ -5,9 +5,9 @@ import { COLORS } from '../../theme/Colors';
 import { Fonts } from '../../theme/Fonts';
 
 // interface Props {
-//     label: string, 
-//     placeholder: string, 
-//     keyboardType: any, 
+//     label: string,
+//     placeholder: string,
+//     keyboardType: any,
 //     secureTextEntry?: boolean,
 //     value: string,
 //     onChangeText: (text: string) => void,
@@ -18,16 +18,16 @@ import { Fonts } from '../../theme/Fonts';
 //     inputMode?: 'decimal' | 'email' | 'none' | 'numeric' | 'search' | 'tel' | 'text' | 'url',
 //     multiline?: boolean,
 //     returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send',
-  
+
 //   }
 
 const CustomInputField = ({ label, placeholder, keyboardType, secureTextEntry, value, onChangeText, autoComplete, autoCapitalize, autoFocus, editable, inputMode, multiline,returnKeyType, inputContainerStyle, inputStyles}) => {
 
   return (
-    <View style={[styles.inputContainer, inputContainerStyle]}> 
+    <View style={[styles.inputContainer, inputContainerStyle]}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
-        value={value} 
+        value={value}
         onChangeText={onChangeText}
         style={[styles.inputBox, inputStyles]}
         placeholder={placeholder}
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
         fontSize: scale(14),
         color: COLORS.black,
         marginBottom: scale(5),
-        fontFamily: Fonts.Medium
+        fontFamily: Fonts.Medium,
       },
       inputBox: {
         borderWidth: 1,
@@ -68,6 +68,6 @@ const styles = StyleSheet.create({
         fontSize: scale(14),
         color: COLORS.black,
         fontFamily: Fonts.Regular,
-        height: scale(42)
+        height: scale(42),
       },
-}) 
+});

@@ -27,7 +27,7 @@ const userDataShape = {
   locality: null,
   isLoggedIn: null,
   isSignupCompleted: null,
-  isRidePopupVisible: false
+  isRidePopupVisible: false,
 };
 
 export const userSlice = createSlice({

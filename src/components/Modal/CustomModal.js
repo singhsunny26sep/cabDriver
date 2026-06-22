@@ -22,23 +22,23 @@ const CustomModal = ({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.modalOverlay}
-        activeOpacity={1} 
+        activeOpacity={1}
         onPress={onClose}
       >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>{title}</Text>
           <Text style={styles.modalMessage}>{message}</Text>
           <View style={styles.modalButtons}>
-            <TouchableOpacity 
-              style={[styles.modalButton, styles.cancelButton]} 
+            <TouchableOpacity
+              style={[styles.modalButton, styles.cancelButton]}
               onPress={onClose}
             >
               <Text style={styles.cancelButtonText}>{cancelText}</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.modalButton, { backgroundColor: confirmButtonColor }]} 
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: confirmButtonColor }]}
               onPress={onConfirm}
             >
               <Text style={styles.confirmButtonText}>{confirmText}</Text>
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: COLORS.gray4
+    backgroundColor: COLORS.gray4,
   },
   cancelButtonText: {
     fontSize: moderateScale(16),
@@ -102,4 +102,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomModal; 
+export default CustomModal;

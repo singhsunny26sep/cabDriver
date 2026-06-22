@@ -33,4 +33,4 @@ export default {
   navigation :require('./navigation.png'),
   sendMessage :require('./sendMessage.png'),
   Expand :require('./expand.png'),
-}
+};

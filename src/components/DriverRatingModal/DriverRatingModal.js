@@ -15,6 +15,7 @@ import { Fonts } from '../../theme/Fonts';
 import axios from 'axios';
 import { BASE_URL } from '../../api/BaseUrl';
 import { CREATE_RATING } from '../../api/Endpoints';
+import { loadUserLocalMethod } from '../../redux/slice/UserSlice';
 
 const DriverRatingModal = ({visible, onClose, rideData, onSubmit}) => {
   const [rating, setRating] = useState(0);
@@ -22,7 +23,7 @@ const DriverRatingModal = ({visible, onClose, rideData, onSubmit}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!rating || !rideData?._id) return;
+    if (!rating || !rideData?._id) {return;}
 
     setIsSubmitting(true);
     try {
@@ -38,7 +39,7 @@ const DriverRatingModal = ({visible, onClose, rideData, onSubmit}) => {
         },
         {
           headers: {
-            Authorization: data.token,
+            Authorization: data?.token,
           },
         },
       );

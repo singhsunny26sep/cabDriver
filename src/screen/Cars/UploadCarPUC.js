@@ -39,7 +39,7 @@ export default function UploadCarPUC ({navigation})  {
   };
 
   const removeDocument = (indexToRemove) => {
-    setSelectedDocs(prevDocs => 
+    setSelectedDocs(prevDocs =>
       prevDocs.filter((_, index) => index !== indexToRemove)
     );
   };
@@ -66,8 +66,8 @@ export default function UploadCarPUC ({navigation})  {
       statusBarStyle={'dark-content'}
       statusBarBackgroundColor={COLORS.white}
       backgroundColor={COLORS.white}>
-      <AppBar back title='Car PUC'/>
-      <View style={styles.container}>        
+      <AppBar back title="Car PUC"/>
+      <View style={styles.container}>
         <View style={styles.instructionRow}>
           <Icon name="check-circle" size={20} color={COLORS.Amber} />
           <Text style={styles.subtitle}>
@@ -98,9 +98,9 @@ export default function UploadCarPUC ({navigation})  {
               <View key={index} style={styles.imageWrapper}>
                 <View style={styles.docPreview}>
                   <View style={styles.docIconContainer}>
-                    <Icon 
-                      name={getFileIcon(doc.name)} 
-                      size={40} 
+                    <Icon
+                      name={getFileIcon(doc.name)}
+                      size={40}
                       color={COLORS.Amber}
                     />
                   </View>
@@ -113,7 +113,7 @@ export default function UploadCarPUC ({navigation})  {
                     </Text>
                   </View>
                 </View>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.removeButton}
                   onPress={() => removeDocument(index)}
                 >
@@ -125,24 +125,24 @@ export default function UploadCarPUC ({navigation})  {
         </View>
 
         <View style={styles.buttonContainer}>
-          <PrimaryButton buttonText='Done'/>
+          <PrimaryButton buttonText="Done"/>
         </View>
       </View>
     </Container>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginHorizontal: scale(15)
+    marginHorizontal: scale(15),
   },
   subtitle: {
     fontSize: moderateScale(13),
     color: COLORS.gray,
     flex: 1,
     marginLeft: scale(10),
-    fontFamily: Fonts.Regular
+    fontFamily: Fonts.Regular,
   },
   imageContainer: {
     width: '100%',
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   uploadText: {
     color: COLORS.black,
     fontFamily: Fonts.Medium,
-    fontSize: moderateScale(16)
+    fontSize: moderateScale(16),
   },
   instructionRow: {
     flexDirection: 'row',
@@ -179,12 +179,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   lastInstruction: {
-    marginBottom: scale(20)
+    marginBottom: scale(20),
   },
   buttonContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    paddingBottom: scale(20)
+    paddingBottom: scale(20),
   },
   selectedImagesContainer: {
     width: '100%',

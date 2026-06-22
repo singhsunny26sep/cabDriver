@@ -59,14 +59,14 @@ function AnimatedTabBar({ state, descriptors, navigation }) {
   const getIconColor = (index) => {
     return colorValues[index].interpolate({
       inputRange: [0, 1],
-      outputRange: [COLORS.gray, "#4c32e1"],
+      outputRange: [COLORS.gray, '#4c32e1'],
     });
   };
 
   const getLabelColor = (index) => {
     return colorValues[index].interpolate({
       inputRange: [0, 1],
-      outputRange: [COLORS.gray, "#4c32e1"],
+      outputRange: [COLORS.gray, '#4c32e1'],
     });
   };
 

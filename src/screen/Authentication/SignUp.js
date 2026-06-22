@@ -14,7 +14,7 @@ import CustomPasswordInputField from '../../components/CustomTextInput/CustomPas
 import {useDispatch, useSelector} from 'react-redux';
 import {setUserData, setLoading, setError} from '../../redux/slice/UserSlice';
 import {saveUserLocalMethod, removeUserLocalMethod} from '../../redux/slice/UserSlice';
-import { isStringNullBlank, isValidEmail, isValidPassword, doPasswordsMatch  } from '../../utils/validations'; 
+import { isStringNullBlank, isValidEmail, isValidPassword, doPasswordsMatch  } from '../../utils/validations';
 import { showToast } from '../../components/CustomToast/CustomToast';
 
 export default function SignUp({navigation}) {
@@ -32,17 +32,17 @@ export default function SignUp({navigation}) {
     setLoading(true);
     try {
       // Validate all fields
-      if (isStringNullBlank(name, "Name")) return;
+      if (isStringNullBlank(name, 'Name')) {return;}
 
-      if (isStringNullBlank(email, "Email")) return;
-      if (!isValidEmail(email)) return;
-      
-      if (isStringNullBlank(password, "Password")) return;
-      if (!isValidPassword(password)) return;
-      
-      if (isStringNullBlank(confirmPassword, "Confirm Password")) return;
-      if (!doPasswordsMatch(password, confirmPassword)) return;
-      
+      if (isStringNullBlank(email, 'Email')) {return;}
+      if (!isValidEmail(email)) {return;}
+
+      if (isStringNullBlank(password, 'Password')) {return;}
+      if (!isValidPassword(password)) {return;}
+
+      if (isStringNullBlank(confirmPassword, 'Confirm Password')) {return;}
+      if (!doPasswordsMatch(password, confirmPassword)) {return;}
+
       if (!isChecked) {
         showToast('error', 'Validation Error', 'Please agree to terms & conditions');
         return;
@@ -53,7 +53,7 @@ export default function SignUp({navigation}) {
         name: name.trim(),
         email: email.trim().toLowerCase(),
         password: password,
-        signupType: "email",
+        signupType: 'email',
         isLoggedIn: false,
         isSignupCompleted: false,
         isRidePopupVisible: false,
@@ -61,13 +61,13 @@ export default function SignUp({navigation}) {
 
       // Save to Redux
       dispatch(setUserData(userData));
-      
+
       // Save to local storage
       await saveUserLocalMethod(userData);
-      
+
       // Show success
       // showToast('success', 'Account Created', 'Your account has been created successfully');
-      
+
       // Clear form
       setLoading(false);
       setName('');
@@ -75,15 +75,15 @@ export default function SignUp({navigation}) {
       setPassword('');
       setConfirmPassword('');
       setIsChecked(false);
-      
+
       // Navigate
       navigation.navigate('Complateprofile'); // Or your next screen
-      
+
     } catch (error) {
       setLoading(false);
       showToast('error', 'Signup Failed', error.message || 'Failed to create account');
     }
-  }
+  };
 
   return (
     <Container
@@ -99,21 +99,21 @@ export default function SignUp({navigation}) {
       </View>
 
       <View style={styles.inputContainer}>
-        <CustomInputField 
-          label={"Name"}
+        <CustomInputField
+          label={'Name'}
           value={name}
           onChangeText={setName}
           keyboardType="default"
           secureTextEntry={false}
-          placeholder={"Please Enter Your Name"}
+          placeholder={'Please Enter Your Name'}
         />
-        <CustomInputField 
-          label={"Email"}
+        <CustomInputField
+          label={'Email'}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           secureTextEntry={false}
-          placeholder={"Please Enter Your Email"}
+          placeholder={'Please Enter Your Email'}
         />
         <CustomPasswordInputField
           label="Password"
@@ -138,7 +138,7 @@ export default function SignUp({navigation}) {
           Agree with <Text style={styles.termsLink}>Terms & Conditions</Text>
         </Text>
       </View>
-      
+
       <PrimaryButton buttonText="Sign Up" style={styles.primaryButton} onPress={handleSignup} loading={loading} />
 
       <View style={styles.dividerContainer}>

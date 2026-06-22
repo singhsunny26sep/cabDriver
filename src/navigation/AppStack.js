@@ -38,6 +38,7 @@ import CollectCash from '../screen/CollectCash';
 import RateRider from '../screen/RateRider';
 import AddVehicle from '../screen/AddVehicle';
 import SelectTransport from '../screen/SelectTransport';
+import YourRides from '../screen/YourRides';
 import TransportLists from '../screen/TransportLists';
 import EditVehicleDetails from '../screen/EditVehicleDetails';
 import OngoingRide from '../screen/Booking/OngoingRide';
@@ -79,21 +80,22 @@ const AppStack = () => {
       <Stack.Screen name="Cars" component={Cars} />
       <Stack.Screen name="AddNewCar" component={AddNewCar} />
       <Stack.Screen name="CarDocument" component={CarDocument} />
-      <Stack.Screen name='UploadCarPUC' component={UploadCarPUC}/>
+      <Stack.Screen name="UploadCarPUC" component={UploadCarPUC}/>
       <Stack.Screen name="UploadCarInsurance" component={UploadCarInsurance} />
       <Stack.Screen name="UploadCarCertificate" component={UploadCarCertificate} />
       <Stack.Screen name="UploadCarPermit" component={UploadCarPermit} />
-      <Stack.Screen name='CarImage' component={CarImage}/>
-      <Stack.Screen name='Pre_BookedRide' component={Pre_BookedRide}/>
-      <Stack.Screen name='PrivacyPolicy' component={PrivacyPolicy}/>
-      <Stack.Screen name='PasswordManager' component={PasswordManager}/>
-      <Stack.Screen name='Notification' component={Notification}/>
-      <Stack.Screen name='AskForOtp' component={AskForOtp}/>
-      <Stack.Screen name='CollectCash' component={CollectCash}/>
-      <Stack.Screen name='RateRider' component={RateRider}/>
-      <Stack.Screen name='AddVehicle' component={AddVehicle}/>
-      <Stack.Screen name='OngoingRide' component={OngoingRide}/>
-      <Stack.Screen name='ChatScreen' component={ChatScreen}/>
+      <Stack.Screen name="CarImage" component={CarImage}/>
+      <Stack.Screen name="Pre_BookedRide" component={Pre_BookedRide}/>
+      <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy}/>
+      <Stack.Screen name="PasswordManager" component={PasswordManager}/>
+      <Stack.Screen name="Notification" component={Notification}/>
+      <Stack.Screen name="AskForOtp" component={AskForOtp}/>
+      <Stack.Screen name="CollectCash" component={CollectCash}/>
+      <Stack.Screen name="RateRider" component={RateRider}/>
+      <Stack.Screen name="AddVehicle" component={AddVehicle}/>
+      <Stack.Screen name="OngoingRide" component={OngoingRide}/>
+      <Stack.Screen name="ChatScreen" component={ChatScreen}/>
+      <Stack.Screen name="YourRides" component={YourRides}/>
     </Stack.Navigator>
   );
 };

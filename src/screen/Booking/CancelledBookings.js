@@ -63,7 +63,7 @@ export default function CancelledBookings({navigation}) {
   }, []);
 
   useEffect(() => {
-    if (!userLocalData?._id || !userLocalData?.token) return;
+    if (!userLocalData?._id || !userLocalData?.token) {return;}
 
     initializeSockets();
     handleTabChange(activeTab);
@@ -118,7 +118,7 @@ export default function CancelledBookings({navigation}) {
     // Emit event based on the selected type value
     const eventName = `${typeValue}_booking`;
     socketServices.emit(eventName, {
-      type: "cancelled"
+      type: 'cancelled',
     });
 
     socketServices.on(`${typeValue}_booking_list`, data => {

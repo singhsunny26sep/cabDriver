@@ -38,8 +38,8 @@ export default function ForgotPassword() {
   const [otpToken, setOtpToken] = useState('');
 
   const handleVerifyEmail = async () => {
-    if (isStringNullBlank(email, 'Email')) return;
-    if (!isValidEmail(email)) return;
+    if (isStringNullBlank(email, 'Email')) {return;}
+    if (!isValidEmail(email)) {return;}
 
     try {
       setLoading(true);
@@ -72,7 +72,7 @@ export default function ForgotPassword() {
   };
 
   const handleVerifyOTP = async () => {
-    if (isStringNullBlank(otpInput, 'OTP')) return;
+    if (isStringNullBlank(otpInput, 'OTP')) {return;}
     if (otpInput.length !== 6) {
       showToast('error', 'Error', 'Please enter a valid 6-digit OTP.');
       return;
@@ -110,11 +110,11 @@ export default function ForgotPassword() {
   };
 
   const handleSetNewPassword = async () => {
-    if (isStringNullBlank(newPassword, 'Password')) return;
-    if (!isValidPassword(newPassword)) return;
+    if (isStringNullBlank(newPassword, 'Password')) {return;}
+    if (!isValidPassword(newPassword)) {return;}
 
-    if (isStringNullBlank(confirmPassword, 'Confirm Password')) return;
-    if (!doPasswordsMatch(newPassword, confirmPassword)) return;
+    if (isStringNullBlank(confirmPassword, 'Confirm Password')) {return;}
+    if (!doPasswordsMatch(newPassword, confirmPassword)) {return;}
 
     try {
       setLoading(true);

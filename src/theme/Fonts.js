@@ -4,14 +4,14 @@ const  Fonts = {
     Light :'Poppins-Light',
     Medium : 'Poppins-Medium',
     Regular :'Poppins-Regular',
-    SemiBold:"Poppins-SemiBold",
-    RobotoBold:"Roboto-Bold",
-    RobotoLight:"Roboto-Light",
-    RobotMedium:"Roboto-Medium",
-    RobotoRegular:"Roboto-Regular"
+    SemiBold:'Poppins-SemiBold',
+    RobotoBold:'Roboto-Bold',
+    RobotoLight:'Roboto-Light',
+    RobotMedium:'Roboto-Medium',
+    RobotoRegular:'Roboto-Regular',
 
-}
-export {Fonts}
+};
+export {Fonts};
 
 export const shadowStyle = {
     shadowOffset: {
@@ -21,4 +21,4 @@ export const shadowStyle = {
     shadowOpacity: 0.5,
     shadowRadius: 4,
     elevation: 5,
-}  
+};

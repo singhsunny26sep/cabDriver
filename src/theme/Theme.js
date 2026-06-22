@@ -11,7 +11,7 @@ const THEME = {
       turquoise: COLORS.turquoise,
     },
   },
-  Dark: { 
+  Dark: {
     ...DefaultTheme,
     colors: {
       ...DefaultTheme.colors,

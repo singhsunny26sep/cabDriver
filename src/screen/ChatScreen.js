@@ -11,7 +11,7 @@ import {
   Image,
   SafeAreaView,
   StatusBar,
-  ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
 import Icons from '../assets/Icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -59,7 +59,7 @@ const ChatScreen = () => {
 
   // Initialize socket when token is available
   useEffect(() => {
-    if (!userLocalData?.token) return;
+    if (!userLocalData?.token) {return;}
 
     const initializeSocket = async () => {
       try {
@@ -83,7 +83,7 @@ const ChatScreen = () => {
 
   // Load messages and setup socket listeners
   useEffect(() => {
-    if (!socketInitialized || !bookingId) return;
+    if (!socketInitialized || !bookingId) {return;}
 
     const loadMessages = async () => {
       try {
@@ -92,21 +92,21 @@ const ChatScreen = () => {
         // const url = `http://192.168.31.250:5000/api/chat/${bookingId}`;
         const response = await axios.get(url, {
           headers: {
-            Authorization: `Bearer ${userLocalData?.token}`
+            Authorization: `Bearer ${userLocalData?.token}`,
           },
         });
         console.warn('response loading messages:', response.data);
-        
+
         setClientInfo(response?.data?.clientInfo);
         setDriverInfo(response?.data?.riderInfo);
-        
+
         // Clear existing message IDs and add new ones
         messageIdRef.current.clear();
         const newMessages = response.data.messages.map((msg) => {
           messageIdRef.current.add(msg._id);
           return msg;
         });
-        
+
         setMessages(newMessages);
         scrollToBottom();
       } catch (error) {
@@ -145,7 +145,7 @@ const ChatScreen = () => {
   };
 
   const handleSendMessage = () => {
-    if (message.trim() === '') return;
+    if (message.trim() === '') {return;}
 
     const tempId = Date.now().toString();
     const newMessage = {
@@ -153,7 +153,7 @@ const ChatScreen = () => {
       senderType: 'RIDER',
       bookingId,
       message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     // Optimistically update UI
@@ -166,7 +166,7 @@ const ChatScreen = () => {
     socketServices.emit('sendMessage', {
       senderType: 'RIDER',
       bookingId,
-      message
+      message,
     });
   };
 
@@ -183,7 +183,7 @@ const ChatScreen = () => {
       <View
         style={[
           styles.messageContainer,
-          isMe ? styles.myMessageContainer : styles.otherMessageContainer
+          isMe ? styles.myMessageContainer : styles.otherMessageContainer,
         ]}
       >
         {!isMe && profileImage && (
@@ -195,18 +195,18 @@ const ChatScreen = () => {
         <View
           style={[
             styles.messageBubble,
-            isMe ? styles.myMessageBubble : styles.otherMessageBubble
+            isMe ? styles.myMessageBubble : styles.otherMessageBubble,
           ]}
         >
           <Text style={[
             styles.messageText,
-            isMe ? styles.myMessageText : styles.otherMessageText
+            isMe ? styles.myMessageText : styles.otherMessageText,
           ]}>
             {item.message}
           </Text>
           <Text style={[
             styles.timeText,
-            isMe ? styles.myTimeText : styles.otherTimeText
+            isMe ? styles.myTimeText : styles.otherTimeText,
           ]}>
             {formatTime(item.timestamp)}
           </Text>
@@ -222,7 +222,7 @@ const ChatScreen = () => {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#FFC107" />
           <Text style={styles.loadingText}>
-            {initializingSocket ? "Connecting to chat..." : "Loading messages..."}
+            {initializingSocket ? 'Connecting to chat...' : 'Loading messages...'}
           </Text>
         </View>
       </SafeAreaView>
@@ -246,7 +246,7 @@ const ChatScreen = () => {
               color={COLORS.black}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>{clientInfo?.name || "Chat"}</Text>
+          <Text style={styles.title}>{clientInfo?.name || 'Chat'}</Text>
           <View style={styles.rightIconPlaceholder} />
         </View>
 
@@ -291,7 +291,7 @@ const ChatScreen = () => {
                 source={Icons.sendMessage}
                 style={[
                   styles.sendIcon,
-                  message.trim() ? styles.activeSendIcon : null
+                  message.trim() ? styles.activeSendIcon : null,
                 ]}
               />
             </TouchableOpacity>

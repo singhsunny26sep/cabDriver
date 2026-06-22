@@ -101,7 +101,7 @@ const NotificationPopup = ({visible, onAccept, onCancel}) => {
     };
   }, []);
   useEffect(() => {
-    if (!userLocalData?._id || !userLocalData?.token) return;
+    if (!userLocalData?._id || !userLocalData?.token) {return;}
 
     initializeSockets();
 
@@ -113,10 +113,10 @@ const NotificationPopup = ({visible, onAccept, onCancel}) => {
   const initializeSockets = async () => {
     try {
       // await socketServices.initializeSocket(userLocalData.token);
-      
-      console.log("object socketServices.isConnected()----------------------",socketServices.isConnected())
+
+      console.log('object socketServices.isConnected()----------------------',socketServices.isConnected());
       // if(socketServices.isConnected()){
-        console.log("object----------------------")
+        console.log('object----------------------');
 
         socketServices.emit('car_booking', {});
         socketServices.on('car_booking_list', (car_booking_list) => {

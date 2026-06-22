@@ -29,7 +29,7 @@ const getNotificationPermission = () => {
 export const requestNotificationPermission = async () => {
   try {
     const permission = getNotificationPermission();
-    
+
     // For Android <13, notifications are enabled by default
     if (permission === null) {
       return true;
@@ -48,7 +48,7 @@ export const requestNotificationPermission = async () => {
 export const checkNotificationPermission = async () => {
   try {
     const permission = getNotificationPermission();
-    
+
     // For Android <13, notifications are enabled by default
     if (permission === null) {
       return true;
@@ -56,17 +56,17 @@ export const checkNotificationPermission = async () => {
 
     const status = await check(permission);
     console.log('Permission check status:', status);
-    
+
     if (status === RESULTS.UNAVAILABLE) {
       console.log('This feature is not available on this device');
       return false;
     }
-    
+
     if (status === RESULTS.BLOCKED) {
       console.log('Permission is blocked - need to open settings');
       return false;
     }
-    
+
     return status === RESULTS.GRANTED;
   } catch (error) {
     console.log('Permission check error:', error);
@@ -83,7 +83,7 @@ export const getFCMToken = async () => {
     if (!hasPermission) {
       const granted = await requestNotificationPermission();
       // console.log('FCM Token granted:', granted);
-      if (!granted) return null;
+      if (!granted) {return null;}
     }
 
     const token = await messaging().getToken();

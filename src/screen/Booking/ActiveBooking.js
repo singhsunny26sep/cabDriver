@@ -76,7 +76,7 @@ export default function ActiveBooking({navigation}) {
   }, []);
 
   useEffect(() => {
-    if (!userLocalData?._id || !userLocalData?.token) return;
+    if (!userLocalData?._id || !userLocalData?.token) {return;}
     initializeSockets();
     handleTabChange(activeTab);
 

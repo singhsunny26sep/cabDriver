@@ -68,9 +68,9 @@ export default function AddNewCar({navigation}) {
             <Text style={styles.documentButtonText}>Add Car Images</Text>
           </TouchableOpacity>
         </View>
-        <PrimaryButton 
-          buttonText='Add New Car' 
-          style={styles.Button} 
+        <PrimaryButton
+          buttonText="Add New Car"
+          style={styles.Button}
         />
       </ScrollView>
     </Container>
@@ -116,6 +116,6 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.Medium,
   },
   Button:{
-    marginHorizontal:scale(15), marginBottom: scale(20),marginTop:scale(25)
-  }
+    marginHorizontal:scale(15), marginBottom: scale(20),marginTop:scale(25),
+  },
 });
